@@ -120,7 +120,7 @@ public class MainApp {
 				 * GAME OBJECTS
 				 */
 				//Layers
-				this.ground = new Ground(25.0f, 0.25f, engine);
+				this.ground = new Ground(25.0f, 0.25f, engine); 
 				MainApp.restaurant.ground = ground;
 				
 				this.raycaster = new Raycaster(engine);
