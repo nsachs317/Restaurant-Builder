@@ -4,7 +4,7 @@ import com.seaSaltedToaster.restaurantGame.audio.AudioTracks;
 import com.seaSaltedToaster.restaurantGame.menus.languages.LanguageManager;
 import com.seaSaltedToaster.simpleEngine.Engine;
 import com.seaSaltedToaster.simpleEngine.audio.AudioSource;
-import com.seaSaltedToaster.simpleEngine.renderer.Window;
+import com.seaSaltedToaster.simpleEngine.renderer.window.Window;
 import com.seaSaltedToaster.simpleEngine.uis.UiComponent;
 import com.seaSaltedToaster.simpleEngine.uis.constraints.UiConstraints;
 import com.seaSaltedToaster.simpleEngine.uis.constraints.XAlign;
@@ -52,6 +52,8 @@ public class MenuButton extends UiComponent {
 	@Override
 	public void onClick() {
 		//If it is the play button
+		source.Play(AudioTracks.BUTTON_CLICK);
+		
 		if(index == 0) {
 			menu.getAllX().setTarget(-2.0f);
 			menu.getManager().getSavesMenu().slide(true);

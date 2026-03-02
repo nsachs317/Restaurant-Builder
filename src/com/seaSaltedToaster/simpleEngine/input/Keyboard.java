@@ -4,7 +4,7 @@ import org.lwjgl.glfw.GLFW;
 
 import com.seaSaltedToaster.simpleEngine.input.glfwCallbacks.KeyCallback;
 import com.seaSaltedToaster.simpleEngine.input.listeners.KeyListener;
-import com.seaSaltedToaster.simpleEngine.renderer.Window;
+import com.seaSaltedToaster.simpleEngine.renderer.window.Window;
 
 public class Keyboard {
 	

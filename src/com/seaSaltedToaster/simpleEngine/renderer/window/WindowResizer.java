@@ -1,4 +1,4 @@
-package com.seaSaltedToaster.simpleEngine.renderer;
+package com.seaSaltedToaster.simpleEngine.renderer.window;
 
 import java.nio.IntBuffer;
 
@@ -24,6 +24,10 @@ public class WindowResizer extends GLFWWindowSizeCallback {
 		
 		Window.width = newX;
 		Window.height = newY;
+		
+		for(WindowListener listener : Window.listeners) {
+			listener.notifyResize(newX, newY);
+		}
 	}
 
 }

@@ -1,8 +1,8 @@
 name=Basic Door
-type=Wall
+type=Edge
 price=20
 iconZoom=0.66
-category=General
+category=Building
 model=basic/basicDoor
 primary=0.78,0.72,0.43
 secondary=0.9,0.06,0.07

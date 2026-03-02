@@ -6,7 +6,7 @@ import com.seaSaltedToaster.simpleEngine.models.Vao;
 public abstract class Employee extends Component {
 
 	//Basic
-	public String name;
+	public String name, status = "n/a";
 	public Vao model;
 	
 	//Level
@@ -63,6 +63,30 @@ public abstract class Employee extends Component {
 
 	public int getLevel() {
 		return level;
+	}
+
+	public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public void setModel(Vao model) {
+		this.model = model;
+	}
+
+	public void setProgress(float progress) {
+		this.progress = progress;
+	}
+
+	public void setLevel(int level) {
+		this.level = level;
 	}
 
 	@Override

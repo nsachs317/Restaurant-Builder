@@ -21,7 +21,7 @@ public class Ground {
 	//Type
 	public String groundType = "Snowy";
 	private GroundSettings[] types;
-	private GroundSettings type;
+	public GroundSettings type;
 	
 	//Mesh data
 	private GroundRenderer renderer;
@@ -151,10 +151,11 @@ public class Ground {
 				for(Spawnable obj : type.getObjs()) {
 					if(random.nextInt(100) > obj.getChance() && hasData) {
 						Building tree = BuildingList.getBuilding(obj.getName());
+						if(tree == null) continue;
 						Entity entity = tree.getEntity().copyEntity();
 						entity.setPosition(new Vector3f(x, 0 ,z));
 						entity.getTransform().getRotation().setY(random.nextInt(360));						
-						MainApp.restaurant.layers.get(0).addBuilding(entity, tree, -127);
+						MainApp.restaurant.layers.get(0).addBuilding(entity, tree, -127, false);
 					}
 				}
 				
@@ -218,13 +219,15 @@ public class Ground {
 	private void addGroundTypes() {
 		this.types = new GroundSettings[3];
 		
-		GroundSettings grass = 	new GroundSettings("Grassy", new Color(0.50f, 0.775f, 0.52f), new Color(0.50f, 0.75f, 0.52f));
+		GroundSettings grass = 	new GroundSettings("Grassy", new Color(0.50f, 0.775f, 0.52f), new Color(0.50f, 0.75f, 0.52f), new Color(0.50f, 0.8f, 0.52f),new Color(0.50f, 0.7875f, 0.52f), new Color(0.50f, 0.825f, 0.52f));
 		grass.addSpawnable("Tree", 95);
 		grass.addSpawnable("Rock", 97);
 		types[0] = grass;		
 		
 		GroundSettings snowy = new GroundSettings("Snowy", new Color(0.95f, 0.95f, 0.95f), new Color(1.045f, 1.045f, 1.045f));
+		grass.addSpawnable("Tree", 95);
 		snowy.addSpawnable("Rock", 98);
+		snowy.snow = true;
 		types[1] = snowy;		
 		
 		GroundSettings arid = new GroundSettings("Arid", new Color(1.00f,0.60f,0.20f), new Color(1.00f,0.70f,0.40f));

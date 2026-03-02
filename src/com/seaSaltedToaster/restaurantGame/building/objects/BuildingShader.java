@@ -1,7 +1,7 @@
 package com.seaSaltedToaster.restaurantGame.building.objects;
 
 import com.seaSaltedToaster.simpleEngine.renderer.shader.Shader;
-import com.seaSaltedToaster.simpleEngine.renderer.shader.uniforms.UniformFloat;
+import com.seaSaltedToaster.simpleEngine.renderer.shader.uniforms.*;
 import com.seaSaltedToaster.simpleEngine.renderer.shader.uniforms.UniformInteger;
 import com.seaSaltedToaster.simpleEngine.renderer.shader.uniforms.UniformMatrix4f;
 import com.seaSaltedToaster.simpleEngine.renderer.shader.uniforms.UniformVec3;
@@ -22,6 +22,8 @@ public class BuildingShader extends Shader {
 	protected UniformVec3 primaryColor = new UniformVec3("primaryColor");
 	protected UniformVec3 secondaryColor = new UniformVec3("secondaryColor");
 	
+	protected UniformBoolean snow = new UniformBoolean("snow");
+
 	public BuildingShader() {
 		super(vertexShader, fragmentShader, "position", "color", "normal");
 		super.locateUniform(transformation);
@@ -32,8 +34,17 @@ public class BuildingShader extends Shader {
 		super.locateUniform(dayValue);
 		super.locateUniform(primaryColor);
 		super.locateUniform(secondaryColor);
+		super.locateUniform(snow);
 	}
 	
+	public UniformBoolean getSnow() {
+		return snow;
+	}
+
+	public void setSnow(UniformBoolean snow) {
+		this.snow = snow;
+	}
+
 	public UniformVec3 getPrimaryColor() {
 		return primaryColor;
 	}

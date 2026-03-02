@@ -47,7 +47,7 @@ public class ChefComponent extends Employee {
 		
 		//Delete entity
 		BuildingId id = (BuildingId) this.entity.getComponent("BuildingId");
-		id.getLayer().remove(entity);
+		id.getLayer().getBuildings().remove(this.getEntity());
 	}
 
 	public Entity getWorkstation() {

@@ -37,23 +37,34 @@ public class OrderLoader extends SaveWriter {
 	}
 
 	public void saveOrder(ItemOrder itemOrder, int num) {		
+		if(itemOrder == null) return;
+		
 		//0
 		int orderId = itemOrder.getId();
+		if((Integer) orderId == null || orderId == -32767)
+			System.err.println("Could not read order ID");
 		
 		//1 and 2
-		if(itemOrder == null || itemOrder.getTable() == null || itemOrder.getSeat() == null) return;
+		if(itemOrder.getTable() == null || itemOrder.getSeat() == null) return;
 		int tableId = ((BuildingId) itemOrder.getTable().getEntity().getComponent("BuildingId")).getId();
 		int seatId = ((BuildingId) itemOrder.getSeat().getEntity().getComponent("BuildingId")).getId();
 		
-		//3, 4 and 5
-		int foodItem = itemOrder.getFoodItem().id;
+		//3 and 4
 		boolean isTaken = itemOrder.isTaken();
 		boolean isDelivered = itemOrder.isDelivered();
 
-		//6 and 7?
+		//5
 		boolean isCooked = itemOrder.isCooked();
+				
+		String details = "ORDER_DETAILS[" + orderId + "=" + tableId + "=" + seatId + "=" + isTaken + "=" + isDelivered + "=" + isCooked;
 		
-		String details = "ORDER_DETAILS[" + orderId + "=" + tableId + "=" + seatId + "=" + foodItem + "=" + isTaken + "=" + isDelivered + "=" + isCooked + "];";
+		//6 Food
+		for(Food food : itemOrder.getFoodItem()) {
+			if(food == null) continue;
+			details = details + "=" + food.id;
+		}
+		
+		details = details + "];";
 		if(num == 0)
 			SaveSystem.writeToFile(orders, details, false);
 		if(num == 1)
@@ -78,6 +89,7 @@ public class OrderLoader extends SaveWriter {
 			String[] lines = split.split("=");
 			
 			ItemOrder order = new ItemOrder(null, null, null);
+			Food[] foodArray = new Food[16]; int foodCnt = 0;
 			
 			int index = 0;
 			for(String part : lines) {
@@ -85,6 +97,8 @@ public class OrderLoader extends SaveWriter {
 				switch(index) {
 				case 0 :
 					int id = Integer.parseInt(part);
+					if((Integer) id == null) System.err.println("Could not load valid food item id");
+
 					order.setId(id);
 					break;
 				case 1 :
@@ -98,27 +112,31 @@ public class OrderLoader extends SaveWriter {
 					order.setSeat((SeatComponent) seat.getComponent("Chair"));
 					break;
 				case 3 :
-					int foodId = Integer.parseInt(part);
-					Food food = FoodRegistry.getFood(foodId);
-					order.setFoodItem(food);
-					break;
-				case 4 :
 					boolean isTaken = Boolean.parseBoolean(part);
 					order.setTaken(isTaken);
 					break;
-				case 5 :
+				case 4 :
 					boolean isDelivered = Boolean.parseBoolean(part);
 					order.setDelivered(isDelivered);
 					break;
-				case 6 :
+				case 5 :
 					boolean isCooked = Boolean.parseBoolean(part);
 					order.setCooked(isCooked);
 					break;
-				case 7 :
+				default :
+					if(part == "") break;
+					int foodId = Integer.parseInt(part);
+					if((Integer) foodId == null) System.err.println("Could not load valid food item id");
+					
+					Food food = FoodRegistry.getFood(foodId);
+					if(food == null)
+						System.err.println("Invalid Food Item");
+					foodArray[foodCnt++] = food;
 					break;	
 				}
 				index++;
 			}
+			order.setFoodItem(foodArray);
 			
 			if(num == 0)
 				MainApp.restaurant.orders.add(order);

@@ -1,8 +1,10 @@
 package com.seaSaltedToaster.restaurantGame.menus.mainMenu.savesMenu;
 
 import com.seaSaltedToaster.MenuManager;
+import com.seaSaltedToaster.restaurantGame.audio.AudioTracks;
 import com.seaSaltedToaster.simpleEngine.Engine;
-import com.seaSaltedToaster.simpleEngine.renderer.Window;
+import com.seaSaltedToaster.simpleEngine.audio.AudioSource;
+import com.seaSaltedToaster.simpleEngine.renderer.window.Window;
 import com.seaSaltedToaster.simpleEngine.uis.UiComponent;
 import com.seaSaltedToaster.simpleEngine.uis.constraints.UiConstraints;
 import com.seaSaltedToaster.simpleEngine.uis.constraints.XAlign;
@@ -17,6 +19,7 @@ public class SavesBack extends UiComponent {
 
 	//Objects
 	private SavesMenu savesMenu;
+	private AudioSource source;
 	
 	//Animation
 	private SmoothFloat sizeAnim;
@@ -25,6 +28,7 @@ public class SavesBack extends UiComponent {
 		super(1);
 		this.savesMenu = savesMenu;
 		createButton(engine);
+		this.source = new AudioSource();
 	}
 	
 	@Override
@@ -40,11 +44,13 @@ public class SavesBack extends UiComponent {
 		MenuManager manager = this.savesMenu.getManager();
 		manager.getMainMenu().slide(true);
 		savesMenu.slide(false);
+		source.Play(AudioTracks.BUTTON_CLICK);
 	}
 	
 	@Override
 	public void onHover() {
 		this.sizeAnim.setTarget(1.33f);
+		source.Play(AudioTracks.BUTTON_HOVER);
 	}
 	
 	@Override

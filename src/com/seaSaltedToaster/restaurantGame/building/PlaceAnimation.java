@@ -2,7 +2,7 @@ package com.seaSaltedToaster.restaurantGame.building;
 
 import com.seaSaltedToaster.restaurantGame.building.layers.BuildLayer;
 import com.seaSaltedToaster.simpleEngine.entity.componentArchitecture.Component;
-import com.seaSaltedToaster.simpleEngine.renderer.Window;
+import com.seaSaltedToaster.simpleEngine.renderer.window.Window;
 import com.seaSaltedToaster.simpleEngine.utilities.SmoothFloat;
 
 public class PlaceAnimation extends Component {

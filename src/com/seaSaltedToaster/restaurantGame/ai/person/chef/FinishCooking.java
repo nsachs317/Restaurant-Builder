@@ -34,7 +34,7 @@ public class FinishCooking extends Action {
 		order.setCooked(true);
 		MainApp.restaurant.chefOrders.remove(order);
 		MainApp.restaurant.orders.add(order);
-		System.out.println("cooked");
+		System.out.println("Chef Cooked Order : " + order.getId());
 
 		//Reset tree
 		ActionComponent aComp = (ActionComponent) object.getComponent("Action");
@@ -46,7 +46,7 @@ public class FinishCooking extends Action {
 
 	@Override
 	public String type() {
-		return null;
+		return "FinishCooking";
 	}
 
 	@Override
@@ -54,13 +54,17 @@ public class FinishCooking extends Action {
 		BuildingId id = (BuildingId) object.getComponent("BuildingId");
 		int index = id.getId();
 
-		system.saveAction(index, super.actionIndex, type(), "TAKE_ORDER[" + orderId + "]");
+		system.saveAction(index, super.actionIndex, type(), "COOK[" + orderId + "]");
 	}
 
 	@Override
 	public void loadAction(String data) {
-		String line = data.replace("[", "").replace("]", "").replace("TAKE_ORDER", "").replace(";", "");
+		String line = data.replace("[", "").replace("]", "").replace("COOK", "").replace(";", "");
 		this.orderId = Integer.parseInt(line);
+		if(orderId == -32767) {
+			System.err.println("Could not load order ID");
+		}
+			
 	}
 
 }

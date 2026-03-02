@@ -27,6 +27,7 @@ public class AdvancedRenderer extends Renderer {
 			Entity entity = (Entity) obj;
 			super.loadComponents(entity);
 			ModelComponent model = (ModelComponent) entity.getComponent("Model");
+			if(model == null || model.getMesh() == null) return;
 			super.renderVao(model.getMesh());
 		}
 	}

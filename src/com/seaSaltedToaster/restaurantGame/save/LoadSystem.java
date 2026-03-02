@@ -13,15 +13,19 @@ import com.seaSaltedToaster.restaurantGame.ai.person.Action;
 import com.seaSaltedToaster.restaurantGame.ai.person.ActionComponent;
 import com.seaSaltedToaster.restaurantGame.ai.person.GoToAction;
 import com.seaSaltedToaster.restaurantGame.ai.person.WaitAction;
+import com.seaSaltedToaster.restaurantGame.ai.person.chef.FindChefStation;
 import com.seaSaltedToaster.restaurantGame.ai.person.chef.FinishCooking;
 import com.seaSaltedToaster.restaurantGame.ai.person.chef.WaitToCook;
 import com.seaSaltedToaster.restaurantGame.ai.person.customer.CreateParty;
 import com.seaSaltedToaster.restaurantGame.ai.person.customer.FindTable;
 import com.seaSaltedToaster.restaurantGame.ai.person.customer.HoverParty;
 import com.seaSaltedToaster.restaurantGame.ai.person.customer.IdleStay;
+import com.seaSaltedToaster.restaurantGame.ai.person.customer.LeaveRestaurant;
 import com.seaSaltedToaster.restaurantGame.ai.person.customer.LoadSeating;
 import com.seaSaltedToaster.restaurantGame.ai.person.customer.OrderFood;
 import com.seaSaltedToaster.restaurantGame.ai.person.customer.SitDownAction;
+import com.seaSaltedToaster.restaurantGame.ai.person.customer.WaitForOrderCustomer;
+import com.seaSaltedToaster.restaurantGame.ai.person.waiter.FindHostStation;
 import com.seaSaltedToaster.restaurantGame.ai.person.waiter.GiveChefOrder;
 import com.seaSaltedToaster.restaurantGame.ai.person.waiter.GiveTableOrder;
 import com.seaSaltedToaster.restaurantGame.ai.person.waiter.TakeOrder;
@@ -38,11 +42,13 @@ import com.seaSaltedToaster.restaurantGame.objects.WallComponent;
 import com.seaSaltedToaster.restaurantGame.objects.food.Food;
 import com.seaSaltedToaster.restaurantGame.objects.food.FoodRegistry;
 import com.seaSaltedToaster.restaurantGame.objects.food.ItemOrder;
+import com.seaSaltedToaster.restaurantGame.objects.people.Employee;
 import com.seaSaltedToaster.restaurantGame.objects.seating.SeatComponent;
 import com.seaSaltedToaster.restaurantGame.objects.seating.TableComponent;
 import com.seaSaltedToaster.simpleEngine.Engine;
 import com.seaSaltedToaster.simpleEngine.entity.Entity;
 import com.seaSaltedToaster.simpleEngine.utilities.Vector3f;
+import com.seaSaltedToaster.simpleEngine.utilities.skybox.TimeHandler;
 
 public class LoadSystem {
 	
@@ -81,6 +87,66 @@ public class LoadSystem {
 		return -1;
 	}
 		
+	public void loadInfo() {
+		File infoFile = new File(file.getAbsolutePath() + "/" + curSave + "/info.rf");
+		if(!infoFile.exists()) return;
+		
+		//Get data
+		String allData = readFile(infoFile);
+		String[] data = allData.split(",");
+		
+		float min = Float.parseFloat(data[0]);
+		TimeHandler.minute = min;
+		
+		float hour = Float.parseFloat(data[1]);
+		TimeHandler.hour = hour;
+
+		float day = Float.parseFloat(data[2]);
+		TimeHandler.dayNumber = (int) day;
+
+		int money = Integer.parseInt(data[3]);
+		MainApp.restaurant.money = money;
+		
+		String name = data[4];
+		MainApp.restaurant.name = name;
+		
+		boolean open = Boolean.parseBoolean(data[5]);
+		MainApp.restaurant.isOpen = open;
+	}
+	
+	public void loadEmployees(BuildingManager manager) {
+		File employeeFile = new File(file.getAbsolutePath() + "/" + curSave + "/employees.rf");
+		if(!employeeFile.exists()) return;
+		
+		//Get data
+		String allData = readFile(employeeFile);
+		String[] allLines = allData.replaceAll("\n", "").split(";");
+		
+		for(String line : allLines) {
+			
+			String[] lineDissected = line.split(",");
+			int id = Integer.parseInt(lineDissected[0]);
+			String name = lineDissected[1];
+			float progress = Float.parseFloat(lineDissected[2]);
+			float level = Float.parseFloat(lineDissected[3]);
+			float wage = Float.parseFloat(lineDissected[4]);
+			
+			Entity entityFound = BuildingManager.getBuildingWithID(id);
+			if(entityFound == null) continue;			
+			System.out.println(entityFound.getComponents());
+			Employee employee = (Employee) entityFound.getComponent("Chef");
+			if(employee == null) employee = (Employee) entityFound.getComponent("Server");
+			if(employee == null) continue;
+			
+			System.err.println("booty");
+
+			employee.setName(name);
+			employee.setProgress(progress);
+			employee.setLevel((int)level);
+			employee.setWage((int)wage);
+		}
+	}
+	
 	public void loadActions() {
 		//File
 		File bldFile = new File(file.getAbsolutePath() + "/" + curSave + "/actions.rf");
@@ -122,7 +188,7 @@ public class LoadSystem {
 			int layer = Integer.parseInt(typeAll[3]);
 			int id = Integer.parseInt(typeAll[4].replace("ID:", "").trim());
 
-			Building bld = BuildingList.getBuilding(name, BuildingList.getCategory(category));
+			Building bld = BuildingList.getBuilding(name);
 			BuildingType typeEnum = BuildingType.valueOf(type);
 			
 			Entity entity = null;
@@ -139,6 +205,9 @@ public class LoadSystem {
 				 * FLOOR
 				 */
 				entity = loadFloor(bld, manager, parts, layer, id);
+				break;
+			case Edge :
+				entity = loadObject(bld, manager, parts, layer, id);
 				break;
 			default:
 				/*
@@ -157,6 +226,11 @@ public class LoadSystem {
 
 				//load actions
 				findActions(id.getId(), entity);
+				
+				if(entity.hasComponent("Table")) {
+					TableComponent table = (TableComponent) entity.getComponent("Table");
+					table.checkExisting();
+				}
 
 			}
 		}
@@ -187,6 +261,23 @@ public class LoadSystem {
 		Action action = null;
 		
 		switch(type.trim()) {
+		//Chef Actions
+		case "FindChefStation" :
+			action = new FindChefStation();
+			action.object = entity;
+			action.loadAction(vals[3]);
+			break;
+		case "FinishCooking" : 
+			action = new FinishCooking(-32767);
+			action.object = entity;
+			action.loadAction(vals[3]);
+			break;
+		case "WaitToCook" : 
+			action = new WaitToCook();
+			action.object = entity;
+			action.loadAction(vals[3]);
+			break;
+		//General Actions
 		case "GoTo" :
 			action = new GoToAction(null, null, false);
 			action.object = entity;
@@ -197,6 +288,7 @@ public class LoadSystem {
 			action.object = entity;
 			action.loadAction(vals[3]);
 			break;
+		//Customer
 		case "CreateParty" :
 			action = new CreateParty();
 			action.object = entity;
@@ -234,13 +326,24 @@ public class LoadSystem {
 			action.object = entity;
 			action.loadAction(vals[3]);
 			break;
-		case "WaitForOrder" : 
-			action = new WaitForOrder();
+		case "HostStation" : 
+			action = new FindHostStation();
 			action.object = entity;
 			action.loadAction(vals[3]);
 			break;
-		case "TakeOrder" : 
-			action = new TakeOrder(null);
+		case "WaitForOrderCustomer" :
+			action = new WaitForOrderCustomer();
+			action.object = entity;
+			action.loadAction(vals[3]);
+			break;
+		case "Leave" : 
+			action = new LeaveRestaurant(null);
+			action.object = entity;
+			action.loadAction(vals[3]);
+			break;
+		//Waiter
+		case "FindHostStation" :
+			action = new FindHostStation();
 			action.object = entity;
 			action.loadAction(vals[3]);
 			break;
@@ -249,23 +352,23 @@ public class LoadSystem {
 			action.object = entity;
 			action.loadAction(vals[3]);
 			break;
-		case "WaitToCook" : 
-			action = new WaitToCook();
-			action.object = entity;
-			action.loadAction(vals[3]);
-			break;
-		case "FinishCooking" : 
-			action = new FinishCooking(-32767);
-			action.object = entity;
-			action.loadAction(vals[3]);
-			break;
 		case "GiveTableOrder" : 
 			action = new GiveTableOrder(null);
 			action.object = entity;
 			action.loadAction(vals[3]);
 			break;
+		case "TakeOrder" : 
+			action = new TakeOrder(null);
+			action.object = entity;
+			action.loadAction(vals[3]);
+			break;
+		case "WaitForOrder" : 
+			action = new WaitForOrder();
+			action.object = entity;
+			action.loadAction(vals[3]);
+			break;
 		}
-		System.out.println(action + " " + type); //GiveTableOrder
+		//System.out.println(action + " " + type); //GiveTableOrder
 		
 		return action;
 	}
@@ -293,7 +396,7 @@ public class LoadSystem {
 		String generator = floorParts[ix++];
 		
 		FloorComponent comp = new FloorComponent(type, generator, points);
-		Entity entity = manager.getFloorBuilder().getMeshBuilder().buildFloor(points, comp, true);
+		Entity entity = manager.getFloorBuilder().getMeshBuilder().buildFloor(points, comp, true, false);
 		
 		//Get position
 		String transData = parts[1];
@@ -422,10 +525,14 @@ public class LoadSystem {
 		Vector3f secondary = new Vector3f(sr, sg, sb);
 		
 		//Add
-		manager.getLayers().get(layer).addBuilding(entity, bld, index);
+		manager.getLayers().get(layer).addBuilding(entity, bld, index, false);
 		BuildingId id = (BuildingId) entity.getComponent("BuildingId");
 		id.setPrimary(primary);
 		id.setSecondary(secondary);	
+		ActionComponent a = (ActionComponent) entity.getComponent("Action");
+		if(a != null) {
+			a.getActions().clear();
+		}
 		return entity;
 	}
 

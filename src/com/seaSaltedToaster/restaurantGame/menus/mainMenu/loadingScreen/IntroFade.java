@@ -1,7 +1,7 @@
 package com.seaSaltedToaster.restaurantGame.menus.mainMenu.loadingScreen;
 
 import com.seaSaltedToaster.simpleEngine.Engine;
-import com.seaSaltedToaster.simpleEngine.renderer.Window;
+import com.seaSaltedToaster.simpleEngine.renderer.window.Window;
 import com.seaSaltedToaster.simpleEngine.uis.UiComponent;
 import com.seaSaltedToaster.simpleEngine.utilities.SmoothFloat;
 

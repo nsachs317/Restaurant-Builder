@@ -11,6 +11,7 @@ import com.seaSaltedToaster.restaurantGame.building.layers.BuildLayer;
 import com.seaSaltedToaster.restaurantGame.objects.seating.SeatComponent;
 import com.seaSaltedToaster.restaurantGame.save.SaveSystem;
 import com.seaSaltedToaster.simpleEngine.entity.Entity;
+import com.seaSaltedToaster.simpleEngine.entity.componentArchitecture.Component;
 
 public class LoadSeating extends Action {
 	
@@ -66,9 +67,16 @@ public class LoadSeating extends Action {
 		String line = data.replace("[", "").replace("]", "").replace("SEATING_DATA", "").replace(";", "");
 		String[] lines = line.split("=");
 		
-		HashMap<Entity, SeatComponent> seating = new HashMap<Entity, SeatComponent>();
 		PartyLeader leader = (PartyLeader) object.getComponent("PartyLeader");
 		
+		if(line.equalsIgnoreCase("")) {
+			leader.getEntity().addComponent(new PartySeating());
+			return;
+		}
+		
+		HashMap<Entity, SeatComponent> seating = new HashMap<Entity, SeatComponent>();
+		
+		int memberNum = 0;
 		for(String member : lines) {
 			if(lines.length <= 0) break;
 			
@@ -96,16 +104,38 @@ public class LoadSeating extends Action {
 			if(seatE == null || personE == null) continue;
 			
 			SeatComponent comp = (SeatComponent) seatE.getComponent("Chair");
-			comp.setTaken(true);
 			
+			if(seatE.getId() == leader.getTable().getEntity().getId()) {
+				int seatNum = 0;
+				for(Component component : seatE.getComponents()) {
+					if(component.getComponentType() == "Chair") {
+						if(seatNum == memberNum)
+							comp = (SeatComponent) component;
+						seatNum++;
+					}
+				}
+			}
+			
+			comp.setTaken(true);
+			comp.setTable(leader.getTable());
+			leader.getTable().getChairs().add(comp);
+			
+			
+			
+			System.out.println("Seat for : " + member);
 			comp.getTable().setTaken(true);
+			if(personE != leader.getEntity())
+				leader.getPartyMembers().add(personE);
 			comp.getTable().setTablePartyLeader(leader.getEntity());
+			
 			personE.setPosition(comp.seatPosition);
 			seating.put(personE, comp);
 			
 			ActionComponent personEC = (ActionComponent) personE.getComponent("Action");
 			personEC.getActions().clear(); //TODO just dont do the tree?
 			personEC.getActions().add(new IdleStay()); //TODO only have one?
+			
+			memberNum++;
 		}
 		
 		PartySeating seatingComponent = new PartySeating();

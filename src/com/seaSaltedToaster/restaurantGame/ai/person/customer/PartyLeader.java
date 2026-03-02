@@ -3,6 +3,7 @@ package com.seaSaltedToaster.restaurantGame.ai.person.customer;
 import java.util.List;
 
 import com.seaSaltedToaster.restaurantGame.ai.person.ActionComponent;
+import com.seaSaltedToaster.restaurantGame.objects.seating.TableComponent;
 import com.seaSaltedToaster.simpleEngine.entity.Entity;
 import com.seaSaltedToaster.simpleEngine.entity.componentArchitecture.Component;
 
@@ -10,6 +11,7 @@ public class PartyLeader extends Component {
 	
 	private List<Entity> partyMembers;
 	private Entity partyLeader;
+	private TableComponent table;
 	private int partySize = -127;
 	
 	public PartyLeader(Entity object, List<Entity> partyMembers, int partySize) {
@@ -22,9 +24,18 @@ public class PartyLeader extends Component {
 		CreateParty party = new CreateParty(partyMembers, partySize);
 		party.object = partyLeader;
 		party.actionIndex = 0;
+		party.setTable(table);
 		
 		ActionComponent comp = (ActionComponent) partyLeader.getComponent("Action");
 		comp.getActions().add(0, party);
+	}
+
+	public TableComponent getTable() {
+		return table;
+	}
+
+	public void setTable(TableComponent table) {
+		this.table = table;
 	}
 
 	public List<Entity> getPartyMembers() {

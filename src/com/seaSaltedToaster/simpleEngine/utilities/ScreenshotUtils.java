@@ -15,7 +15,7 @@ import org.lwjgl.opengl.GL11;
 
 import com.seaSaltedToaster.simpleEngine.input.listeners.KeyEventData;
 import com.seaSaltedToaster.simpleEngine.input.listeners.KeyListener;
-import com.seaSaltedToaster.simpleEngine.renderer.Window;
+import com.seaSaltedToaster.simpleEngine.renderer.window.Window;
 
 public class ScreenshotUtils implements KeyListener {
 
@@ -83,7 +83,7 @@ public class ScreenshotUtils implements KeyListener {
 	
 	@Override
 	public void notifyButton(KeyEventData eventData) {
-		if(eventData.getKey() == GLFW.GLFW_KEY_F2 && eventData.getAction() == GLFW.GLFW_PRESS) {
+		if(eventData.getKey() == GLFW.GLFW_KEY_O && eventData.getAction() == GLFW.GLFW_PRESS) {
 			screenshot();
 			System.out.println("Saved screenshot");
 		}

@@ -2,6 +2,6 @@ package com.seaSaltedToaster.restaurantGame.building;
 
 public enum BuildingType {
 	
-	Floor, Wall, Object, WallObject, Person, Pillar;
+	Floor, Wall, Edge, Object, WallObject, Person, Pillar;
 
 }

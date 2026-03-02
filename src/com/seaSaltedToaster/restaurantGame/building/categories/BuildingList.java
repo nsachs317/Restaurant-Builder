@@ -38,10 +38,17 @@ public class BuildingList {
 	}
 	
 	public static Building getBuilding(String name) {
+		for(BuildingCategory category : rootCategory.getChildCategories()) { 
+			Building bld = getBuilding(name, category);
+			if(bld != null)
+				return bld;
+		}
 		return getBuilding(name, rootCategory);
 	}
 	
 	public static Building getBuilding(String name, BuildingCategory category) {
+		//System.out.println(name + " / " + category.getName());
+		
 		for(Building building : category.getChildBuildings()) {
 			if(building.name.equals(name))
 				return building;

@@ -3,6 +3,8 @@ package com.seaSaltedToaster.restaurantGame.ai;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.seaSaltedToaster.MainApp;
+import com.seaSaltedToaster.restaurantGame.ai.person.ActionComponent;
 import com.seaSaltedToaster.restaurantGame.building.Building;
 import com.seaSaltedToaster.restaurantGame.building.BuildingId;
 import com.seaSaltedToaster.restaurantGame.building.BuildingType;
@@ -10,7 +12,10 @@ import com.seaSaltedToaster.restaurantGame.building.layers.BuildLayer;
 import com.seaSaltedToaster.restaurantGame.ground.Ground;
 import com.seaSaltedToaster.restaurantGame.objects.FloorComponent;
 import com.seaSaltedToaster.restaurantGame.objects.WallComponent;
+import com.seaSaltedToaster.restaurantGame.objects.seating.SeatComponent;
+import com.seaSaltedToaster.restaurantGame.objects.seating.TableComponent;
 import com.seaSaltedToaster.simpleEngine.entity.Entity;
+import com.seaSaltedToaster.simpleEngine.entity.componentArchitecture.Component;
 import com.seaSaltedToaster.simpleEngine.utilities.MathUtils;
 import com.seaSaltedToaster.simpleEngine.utilities.Vector2f;
 import com.seaSaltedToaster.simpleEngine.utilities.Vector3f;
@@ -23,13 +28,13 @@ public class PathfindingWorld {
 	
 	//Walkable world lists and layers
 	private boolean[][] walkableWorld;
-	private List<Vector3f> objects;
+	private List<Entity> objects;
 	private List<WallComponent> walls;
 	
 	public PathfindingWorld(int worldSize) {
 		//World size and walls init
 		this.walls = new ArrayList<WallComponent>();
-		this.objects = new ArrayList<Vector3f>();
+		this.objects = new ArrayList<Entity>();
 		
 		this.worldSize = worldSize;
 		float tileSpace = worldSize * (1.0f / Ground.tileSize);
@@ -60,8 +65,8 @@ public class PathfindingWorld {
 	
 	public boolean hasObstruction(Vector3f location) {
 		//Check if a wall is there
-		for(Vector3f object : objects) {
-			if(object.equals(location)) {
+		for(Entity object : objects) {
+			if(object.getTransform().getPosition().equals(location)) {
 				//Found one, return true
 				return true;
 			}
@@ -77,15 +82,28 @@ public class PathfindingWorld {
 		//Change depending on building type
 		switch(building.type) {
 		case Floor :
-			FloorComponent comp = (FloorComponent) preview.getComponent("Floor");
-			if(comp.getPoints().size() == 2) {
-				fillArea(comp.getPoints().get(0), comp.getPoints().get(1));
-			}
+//			FloorComponent comp = (FloorComponent) preview.getComponent("Floor");
+//			if(comp.getPoints().size() == 2) {
+//				fillArea(comp.getPoints().get(0), comp.getPoints().get(1));
+//			}
+			objects.add(preview);
+			this.recalculateWorld(MainApp.restaurant.layers.get(0));
+			
 			//Simply set it to true
 			break;
 		case Object:
-			objects.add(objectPos);
+			objects.add(preview);
 			this.set(objectPos, walkableWorld, false);
+			
+			if(preview.hasComponent("TileHitbox")) {
+				float radius = 0.5f;
+				for(float x = -radius; x < radius; x+=Ground.tileSize) {
+					for(float y = -radius; y < radius; y+=Ground.tileSize) {
+						this.set(new Vector3f(objectPos.x + (x), 0 ,objectPos.z + (y)), walkableWorld, false);
+					}
+				}
+			}
+			
 			break;
 		case Person:
 			//Nothing
@@ -95,6 +113,21 @@ public class PathfindingWorld {
 			WallComponent wall = (WallComponent) preview.getComponent("Wall");
 			walls.add(wall);
 			break;
+		case Edge:
+			objects.add(preview);
+			
+			Vector3f sideDir = MathUtils.projectVertex(objectPos, 0.25f, preview.getTransform().getRotation().y);
+			Vector3f sideDir2 = MathUtils.projectVertex(objectPos, 0.25f, preview.getTransform().getRotation().y + 180);
+			Vector3f sideDir3 = MathUtils.projectVertex(objectPos, 0.5f, preview.getTransform().getRotation().y);
+			Vector3f sideDir4 = MathUtils.projectVertex(objectPos, 0.5f, preview.getTransform().getRotation().y + 180);
+
+			this.set(sideDir2, walkableWorld, false);
+			this.set(sideDir4, walkableWorld, false);
+			if(!building.walkThrough) {
+				this.set(objectPos, walkableWorld, false);
+				this.set(sideDir, walkableWorld, false);
+				this.set(sideDir3, walkableWorld, false);
+			}
 		default:
 			//Nothing
 			break;
@@ -148,49 +181,108 @@ public class PathfindingWorld {
 
 	private boolean noObj(float z, float i) {
 		Vector2f base = new Vector2f(i, z);
-		for(Vector3f obj : objects)
+		for(Entity ent : objects)
 		{
+			Vector3f obj = ent.getTransform().getPosition();
 			if(base.x == obj.x && base.y == obj.z)
 				return false;
 		}
 		return true;
 	}
 
-	public int getIndex(float x) {
-		return (int) (x * (1.0f / Ground.tileSize)) + (worldSize*2 + 2);
-	}
-
 	public void removeBuilding(Entity entity, BuildLayer layer) {
-		//Get building id
-		BuildingId id = (BuildingId) entity.getComponent("BuildingId");
-		Building type = id.getType();
-		BuildingType structType = type.type;
-
-		//Get coords
-		Vector3f position = entity.getPosition();
-		
-		//Remove from wall list if it is a wall
-		if(structType == BuildingType.Wall) {
-			WallComponent wall = (WallComponent) entity.getComponent("Wall");
-			this.walls.remove(wall);
-			return;
-		}
-
-		//Check if there is a floor if it is an obstructive object
-		if(structType == BuildingType.Object) {
-			this.objects.remove(position);
-			return;
+		//check if we can remove		
+		SeatComponent seat = (SeatComponent) entity.getComponent("Chair");
+		if(seat != null) {
+			if(seat.isTaken()) {
+				 return;
+			}
+			else {
+				MainApp.restaurant.chair.remove(seat);
+				if(seat.getTable() != null)
+					seat.getTable().getChairs().remove(seat);
+			}
 		}
 		
-		//Set to unwalkable if it is a floor
-		if(structType == BuildingType.Floor) {
-			set(position, walkableWorld, false);
-			return;
+		TableComponent table = (TableComponent) entity.getComponent("Table");
+		if(table != null) {
+			if(table.isTaken())
+				return;
+			else
+				MainApp.restaurant.tables.remove(table);
 		}
+		
+		ActionComponent action = (ActionComponent) entity.getComponent("Action");
+		if(action != null) return;
+		
+		for(Component comp : entity.getComponents()) {
+			comp.reset();
+		}
+		
+		//remove
+		this.setAll(walkableWorld, false);
+		objects.remove(entity);
+		layer.getBuildings().remove(entity);
+		this.recalculateWorld(layer);
 	}
 	
 	public void recalculateWorld(BuildLayer layer) {
-		//TODO recalc world
+		System.out.println("Recalculating Pathfinding World");
+		
+		for(Entity preview : objects) {
+			BuildingId id = (BuildingId) preview.getComponent("BuildingId");
+			Building building = id.getType();
+			if(building.type != BuildingType.Floor) continue;
+			
+			FloorComponent comp = (FloorComponent) preview.getComponent("Floor");
+			if(comp.getPoints().size() == 2) {
+				fillArea(comp.getPoints().get(0), comp.getPoints().get(1));
+			}
+		}
+		
+		
+		for(Entity preview : objects) {
+			BuildingId id = (BuildingId) preview.getComponent("BuildingId");
+			Building building = id.getType();
+			Vector3f objectPos = preview.getTransform().getPosition();
+			
+			switch(building.type) {
+			case Object:
+				this.set(objectPos, walkableWorld, false);
+				
+				if(preview.hasComponent("TileHitbox")) {
+					float radius = 0.5f;
+					for(float x = -radius; x < radius; x+=Ground.tileSize) {
+						for(float y = -radius; y < radius; y+=Ground.tileSize) {
+							this.set(new Vector3f(objectPos.x + (x), 0 ,objectPos.z + (y)), walkableWorld, false);
+						}
+					}
+				}
+				break;
+			case Person:
+				//Nothing
+				break;
+			case Wall:
+				//Add wall
+				break;
+			case Edge:				
+				Vector3f sideDir = MathUtils.projectVertex(objectPos, 0.25f, preview.getTransform().getRotation().y);
+				Vector3f sideDir2 = MathUtils.projectVertex(objectPos, 0.25f, preview.getTransform().getRotation().y + 180);
+				Vector3f sideDir3 = MathUtils.projectVertex(objectPos, 0.5f, preview.getTransform().getRotation().y);
+				Vector3f sideDir4 = MathUtils.projectVertex(objectPos, 0.5f, preview.getTransform().getRotation().y + 180);
+
+				this.set(sideDir2, walkableWorld, false);
+				this.set(sideDir4, walkableWorld, false);
+				if(!building.walkThrough) {
+					this.set(objectPos, walkableWorld, false);
+					this.set(sideDir, walkableWorld, false);
+					this.set(sideDir3, walkableWorld, false);
+				}
+				break;
+			default:
+				break;
+			}
+		}
 	}
 	
 	public boolean get(Vector3f location, boolean[][] world) {
@@ -209,6 +301,10 @@ public class PathfindingWorld {
 		
 		//Set state at those coords
 		world[z][x] = state;
+	}
+	
+	public int getIndex(float x) {
+		return (int) (x * (1.0f / Ground.tileSize)) + (worldSize*2 + 2);
 	}
 	
 	public int getTileX(Vector3f location) {

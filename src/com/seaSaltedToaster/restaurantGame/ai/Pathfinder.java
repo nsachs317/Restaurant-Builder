@@ -81,7 +81,14 @@ public class Pathfinder {
 			}
 		}
 		
-		List<Node> path = new ArrayList<Node>();
+		Node lowestCostNode = null;
+		for(Node node : closedSet) {
+			if(node == null) continue;
+			if(lowestCostNode == null || GetDistance(lowestCostNode, endNode) > GetDistance(node, endNode)) {
+				lowestCostNode = node;
+			}
+		}
+		List<Node> path = RetracePath(startNode, lowestCostNode);
 		return path;
 	}
 	

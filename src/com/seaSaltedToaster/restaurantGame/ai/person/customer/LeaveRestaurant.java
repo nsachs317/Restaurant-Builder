@@ -28,7 +28,10 @@ public class LeaveRestaurant extends Action {
 
 	@Override
 	public boolean isDone() {
+		this.leader = (PartyLeader) object.getComponent("PartyLeader");
+		
 		TableComponent table = ((PartySeating) leader.getEntity().getComponent("PartySeating")).getSeating().get(object).getTable();
+		table.setFoodItem(null);
 		table.setTaken(false);
 		
 		for(SeatComponent seat : table.getChairs()) {
@@ -40,7 +43,9 @@ public class LeaveRestaurant extends Action {
 		for(Entity entity : leader.getPartyMembers()) {
 			BuildingId id = (BuildingId) entity.getComponent("BuildingId");
 			int index = id.getLayer().getBuildings().indexOf(entity);
-			id.getLayer().getBuildings().set(index, null);
+			if(index > 0)
+				id.getLayer().getBuildings().set(index, null);
+			System.out.println("Party has left the restaurant : " + leader.getPartyLeader().getId());
 		}
 		
 		BuildingId id = (BuildingId) object.getComponent("BuildingId");
@@ -57,11 +62,18 @@ public class LeaveRestaurant extends Action {
 
 	@Override
 	public void saveAction(SaveSystem system) {
+		BuildingId id = (BuildingId) super.object.getComponent("BuildingId");
+		int index = id.getId();
 		
+		String data = "" + id.getId();
+
+		system.saveAction(index, super.actionIndex, type(), "LEAVE_DATA[" + data + "]");
 	}
 
 	@Override
 	public void loadAction(String data) {
+		String line = data.replace("[", "").replace("]", "").replace("LEAVE_DATA", "").replace(";", "");
+		int leaderId = Integer.parseInt(line);
 		
 	}
 

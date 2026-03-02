@@ -2,7 +2,7 @@ package com.seaSaltedToaster.restaurantGame.menus.buildingSelector;
 
 import com.seaSaltedToaster.restaurantGame.menus.languages.LanguageManager;
 import com.seaSaltedToaster.simpleEngine.Engine;
-import com.seaSaltedToaster.simpleEngine.renderer.Window;
+import com.seaSaltedToaster.simpleEngine.renderer.window.Window;
 import com.seaSaltedToaster.simpleEngine.uis.UiComponent;
 import com.seaSaltedToaster.simpleEngine.uis.constraints.UiConstraints;
 import com.seaSaltedToaster.simpleEngine.uis.constraints.XAlign;
@@ -21,11 +21,15 @@ public class ItemTooltip extends UiComponent {
 	private Text name, price, type;
 	private SmoothFloat mScale, mX;
 	
+	private int[] bounds;
+	
 	public ItemTooltip(BuildingMenu buildingMenu, Engine engine) {
 		super(9);
 		createPanel(engine);
 		close();
 		buildingMenu.addComponent(this);
+		
+		this.bounds = new int[]{0,0,10000,10000};
 	}
 	
 	@Override
@@ -35,6 +39,8 @@ public class ItemTooltip extends UiComponent {
 		
 		this.mX.update(Window.DeltaTime);
 		this.getPosition().setX(mX.getValue());
+		
+		this.setChildrenClippingBounds(bounds);
 	}
 	
 	public void open(BuildingItem item) {

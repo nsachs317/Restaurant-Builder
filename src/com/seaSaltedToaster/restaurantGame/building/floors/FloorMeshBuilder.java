@@ -23,8 +23,8 @@ public class FloorMeshBuilder {
 	private FloorGenerator generator;
 	private int tileCount = 0;
 	
-	public Entity buildFloor(List<Vector3f> points, FloorComponent comp, boolean add) {
-		this.setGenerator(comp.getGenerator());
+	public Entity buildFloor(List<Vector3f> points, FloorComponent comp, boolean add, boolean checkRequirements) {
+		this.setGenerator(comp.getGenerator(), comp);
 		
 		//Remove nulls
 		int count = 0;
@@ -73,22 +73,26 @@ public class FloorMeshBuilder {
 		
 		Building building = BuildingList.getBuilding(comp.getType());
 		
-		if(add)
+		if(add && checkRequirements)
 			MainApp.restaurant.money -= (tileCount * building.getPrice());
 		
 		if(add)
-			layer.addBuilding(result, building, -127);
+			layer.addBuilding(result, building, -127, true);
 			
 		return result;
 	}
 	
-	public void setGenerator(String generatorType) {
+	public void setGenerator(String generatorType, FloorComponent comp) {
 		switch(generatorType) {
 		case "Flat" :
 			this.generator = new FlatFloorGenerator();
 			break;
 		case "Tiled" :
 			this.generator = new TiledFloorGenerator();
+			break;
+		case "Repeating" :
+			this.generator = new RepeatingFloorGenerator(comp);
+			break;
 		default :
 			this.generator = new TiledFloorGenerator();
 			break;

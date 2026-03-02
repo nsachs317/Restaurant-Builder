@@ -2,7 +2,7 @@ package com.seaSaltedToaster.restaurantGame.tools;
 
 import com.seaSaltedToaster.simpleEngine.Engine;
 import com.seaSaltedToaster.simpleEngine.input.Mouse;
-import com.seaSaltedToaster.simpleEngine.renderer.Window;
+import com.seaSaltedToaster.simpleEngine.renderer.window.Window;
 import com.seaSaltedToaster.simpleEngine.utilities.Matrix4f;
 import com.seaSaltedToaster.simpleEngine.utilities.Vector2f;
 import com.seaSaltedToaster.simpleEngine.utilities.Vector3f;

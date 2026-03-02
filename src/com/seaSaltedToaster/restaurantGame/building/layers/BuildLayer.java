@@ -14,7 +14,7 @@ import com.seaSaltedToaster.restaurantGame.building.BuildingType;
 import com.seaSaltedToaster.restaurantGame.ground.Ground;
 import com.seaSaltedToaster.simpleEngine.entity.Entity;
 import com.seaSaltedToaster.simpleEngine.entity.componentArchitecture.Component;
-import com.seaSaltedToaster.simpleEngine.renderer.Window;
+import com.seaSaltedToaster.simpleEngine.renderer.window.Window;
 import com.seaSaltedToaster.simpleEngine.utilities.SmoothFloat;
 import com.seaSaltedToaster.simpleEngine.utilities.Vector3f;
 
@@ -111,7 +111,7 @@ public class BuildLayer {
 		return false;
 	}
 
-	public void addBuilding(Entity preview, Building object, int buildingIndex) {
+	public void addBuilding(Entity preview, Building object, int buildingIndex, boolean checkRequirements) {
 		//Ids
 		int id = buildingIndex;
 		if(id == -127)
@@ -148,7 +148,6 @@ public class BuildLayer {
 	}
 
 	public void remove(Entity entity) {
-		this.buildings.remove(entity);
 		this.manager.getPathWorld().removeBuilding(entity, this);
 	}
 	

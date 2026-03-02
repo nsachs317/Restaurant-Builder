@@ -3,6 +3,7 @@ package com.seaSaltedToaster.restaurantGame.building.objects;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.seaSaltedToaster.MainApp;
 import com.seaSaltedToaster.restaurantGame.building.Building;
 import com.seaSaltedToaster.restaurantGame.building.BuildingId;
 import com.seaSaltedToaster.restaurantGame.building.BuildingManager;
@@ -13,6 +14,7 @@ import com.seaSaltedToaster.simpleEngine.entity.Transform;
 import com.seaSaltedToaster.simpleEngine.entity.componentArchitecture.ModelComponent;
 import com.seaSaltedToaster.simpleEngine.renderer.Renderer;
 import com.seaSaltedToaster.simpleEngine.utilities.Matrix4f;
+import com.seaSaltedToaster.simpleEngine.utilities.OpenGL;
 import com.seaSaltedToaster.simpleEngine.utilities.skybox.TimeHandler;
 
 public class BuildingRenderer extends Renderer {
@@ -39,6 +41,7 @@ public class BuildingRenderer extends Renderer {
 	public void prepare() {
 		this.selectedId = manager.getSelectRenderer().getSelectedId();
 		super.prepareFrame(false);
+		OpenGL.disableCull();
 	}
 	
 	@Override
@@ -46,6 +49,8 @@ public class BuildingRenderer extends Renderer {
 		//Check if our we are selecting an object
 		if(manager.getSelectedEntity() == null)
 			this.selectedId = -127;
+//		this.shader.loadUniform(MainApp.restaurant.ground.type.snow, "snow");
+		this.shader.loadUniform(false, "snow"); //TODO snow control
 		
 		//Loop through all layers to render them
 		int index = 0; //id of the object

@@ -10,6 +10,8 @@ public class GroundSettings {
 	public String name;
 	public Color[] colors;
 	
+	public boolean snow = false;
+	
 	private List<Spawnable> objs;
 	
 	public GroundSettings(String name, Color... colors) {

@@ -1,21 +1,18 @@
-package com.seaSaltedToaster.simpleEngine.renderer;
+package com.seaSaltedToaster.simpleEngine.renderer.window;
 
-import java.io.File;
-import java.nio.ByteBuffer;
-import java.time.LocalDate;
-import java.time.LocalTime;
+import java.util.*;
 
 import org.lwjgl.glfw.GLFW;
-import org.lwjgl.glfw.GLFWImage;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
 import org.lwjgl.system.MemoryUtil;
 
-import com.seaSaltedToaster.simpleEngine.utilities.MathUtils;
+import com.seaSaltedToaster.restaurantGame.tools.Reporter;
 
 public class Window {
 	
+	public static List<WindowListener> listeners;
 	public static long windowID;
 	
 	public static double DeltaTime;
@@ -50,11 +47,15 @@ public class Window {
 		
 		//Enable anti aliasing
 		GL11.glEnable(GL13.GL_MULTISAMPLE);  
+		
+		Window.listeners = new ArrayList<WindowListener>();
 	}
 	
 	public void updateWindow() {
 		GLFW.glfwSwapBuffers(windowID);
+		Reporter.report("Poll Inputs");
 		GLFW.glfwPollEvents();
+		Reporter.report("Cap Window");
 		GLFW.glfwSwapInterval(1);
 		Window.DeltaTime = getDelta();
 	}

@@ -4,7 +4,7 @@ import com.seaSaltedToaster.MainApp;
 import com.seaSaltedToaster.MenuManager;
 import com.seaSaltedToaster.restaurantGame.menus.languages.LanguageManager;
 import com.seaSaltedToaster.simpleEngine.Engine;
-import com.seaSaltedToaster.simpleEngine.renderer.Window;
+import com.seaSaltedToaster.simpleEngine.renderer.window.Window;
 import com.seaSaltedToaster.simpleEngine.uis.UiComponent;
 import com.seaSaltedToaster.simpleEngine.uis.constraints.UiConstraints;
 import com.seaSaltedToaster.simpleEngine.uis.constraints.XAlign;
@@ -18,7 +18,7 @@ import com.seaSaltedToaster.simpleEngine.utilities.SmoothFloat;
 public class MainMenu {
 	
 	//Main body 
-	private UiComponent background;
+	private UiComponent background, backdrop;
 	private int backgroundImage;
 	private Text version;
 	
@@ -66,7 +66,7 @@ public class MainMenu {
 		this.quitBg = engine.getTextureLoader().loadTexture("/uis/quitBg");
 		
 		//TITLE BODY
-		this.titleImage = engine.getTextureLoader().loadTexture("/uis/titleBody");
+//		this.titleImage = engine.getTextureLoader().loadTexture("/uis/titleBody");
 		
 		//TITLE
 		this.titleB = new MenuButton(this, -1, "");
@@ -105,7 +105,7 @@ public class MainMenu {
 	
 		//Version
 		float textSize = 1.0f;
-		this.version = new Text("Restaurantario Version 0.0.9a - AI Update P1", textSize, 0);
+		this.version = new Text("Version 1.0", textSize, 0);
 		this.version.setColor(0.0f);
 		UiConstraints cons2 = version.getConstraints();
 		cons2.setX(new AlignX(XAlign.LEFT, 0.0125f));
@@ -115,10 +115,16 @@ public class MainMenu {
 	}
 
 	private void createBackground(Engine engine) {
-		this.backgroundImage = engine.getTextureLoader().loadTexture("/uis/menuBackground18");
+		this.backgroundImage = engine.getTextureLoader().loadTexture("/uis/menuBackground");
+		this.backdrop = new UiComponent(0);
+		this.backdrop.setTexture(backgroundImage);
+		this.backdrop.setScale(1.2f, 1.2f);
+		//engine.addUi(backdrop);
+		
 		this.background = new UiComponent(0);
 		this.background.setTexture(backgroundImage);
 		this.background.setScale(1.0f, 1.0f);
+		this.background.setAlpha(0.0f);
 		engine.addUi(background);
 		
 		this.fadeBox = new UiComponent(0);

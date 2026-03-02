@@ -23,6 +23,9 @@ public class WaitForOrder extends Action {
 
 	@Override
 	public boolean isDone() {
+		ServerComponent c = (ServerComponent) object.getComponent("Server");
+		c.setStatus("Waiting for Orders");
+		
 		ActionComponent aComp = (ActionComponent) object.getComponent("Action");
 		if(aComp.getActions().size() > 1)
 		{
@@ -34,6 +37,7 @@ public class WaitForOrder extends Action {
 		for(ItemOrder order : restaurant.orders) {
 			if(order == null) continue;
 
+			//Chef orders
 			boolean canDeliver = (!order.isDelivered() && order.isCooked());
 			if(canDeliver) {
 				ServerComponent comp = (ServerComponent) object.getComponent("Server");
@@ -42,15 +46,18 @@ public class WaitForOrder extends Action {
 				return true;
 			}
 			
+			//Table orders
 			boolean isValid = canTake(order);
 			if(isValid) {
+				System.out.println("Taking order : " + order.getId());
 				ServerComponent comp = (ServerComponent) object.getComponent("Server");
-				comp.takeOrder(order);
+				comp.takeOrder(order); 
 				order.setTaken(true);
 				return true;
 			}
 		}
 		
+//		aComp.getActions().add(0, new FindHostStation());
 		return false;
 	}
 

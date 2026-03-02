@@ -3,7 +3,7 @@ package com.seaSaltedToaster.restaurantGame.menus;
 import com.seaSaltedToaster.MainApp;
 import com.seaSaltedToaster.restaurantGame.objects.Restaurant;
 import com.seaSaltedToaster.restaurantGame.tools.ColorPalette;
-import com.seaSaltedToaster.simpleEngine.renderer.Window;
+import com.seaSaltedToaster.simpleEngine.renderer.window.Window;
 import com.seaSaltedToaster.simpleEngine.uis.UiComponent;
 import com.seaSaltedToaster.simpleEngine.uis.constraints.UiConstraints;
 import com.seaSaltedToaster.simpleEngine.uis.constraints.XAlign;

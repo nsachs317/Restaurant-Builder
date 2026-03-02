@@ -55,6 +55,11 @@ public class ColorPicker extends UiComponent {
 		MainApp.menuFocused = true;
 	}
 	
+	@Override
+	public void whileHover() {
+		MainApp.menuFocused = true;
+	}
+	
 	
 	@Override
 	public void stopHover() {

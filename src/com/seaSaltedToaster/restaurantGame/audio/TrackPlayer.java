@@ -6,7 +6,7 @@ import org.lwjgl.openal.AL10;
 
 import com.seaSaltedToaster.simpleEngine.audio.AudioSource;
 import com.seaSaltedToaster.simpleEngine.audio.management.AudioMaster;
-import com.seaSaltedToaster.simpleEngine.renderer.Window;
+import com.seaSaltedToaster.simpleEngine.renderer.window.Window;
 import com.seaSaltedToaster.simpleEngine.utilities.SmoothFloat;
 
 public class TrackPlayer {
@@ -19,7 +19,7 @@ public class TrackPlayer {
 	private final int MAX_TRACKS = 1;
 	
 	//Volume
-	private float vol = 0.0625f;
+	private float vol = 0.0625f * 2;
 	private SmoothFloat volSmooth;
 	
 	//Track
@@ -37,7 +37,6 @@ public class TrackPlayer {
 		this.volSmooth.setTarget(vol);
 		this.volSmooth.setValue(0.0f);
 		this.volSmooth.setAmountPer(vol / 10.0f);
-		this.playNextTrack();
 	}
 	
 	public void update() {

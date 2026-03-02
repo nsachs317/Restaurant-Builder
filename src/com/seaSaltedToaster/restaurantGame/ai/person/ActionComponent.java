@@ -3,10 +3,12 @@ package com.seaSaltedToaster.restaurantGame.ai.person;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.seaSaltedToaster.restaurantGame.ai.person.chef.FindChefStation;
 import com.seaSaltedToaster.restaurantGame.ai.person.chef.WaitToCook;
 import com.seaSaltedToaster.restaurantGame.ai.person.customer.CreateParty;
 import com.seaSaltedToaster.restaurantGame.ai.person.customer.FindTable;
 import com.seaSaltedToaster.restaurantGame.ai.person.customer.IdleStay;
+import com.seaSaltedToaster.restaurantGame.ai.person.waiter.FindHostStation;
 import com.seaSaltedToaster.restaurantGame.ai.person.waiter.WaitForOrder;
 import com.seaSaltedToaster.restaurantGame.save.SaveSystem;
 import com.seaSaltedToaster.simpleEngine.entity.componentArchitecture.Component;
@@ -21,9 +23,10 @@ public class ActionComponent extends Component {
 	private String tree;
 	public boolean doTree = true;
 		
-	public ActionComponent(String tree) {
+	public ActionComponent(String tree, boolean doTree) {
 		this.actions = new ArrayList<Action>();
 		this.tree = tree;
+		this.doTree = doTree;
 	}
 	
 	@Override
@@ -35,7 +38,7 @@ public class ActionComponent extends Component {
 		actions.remove(null);
 		if(!actions.isEmpty() || !doTree) return;
 		
-		doTree(true);
+		doTree(doTree);
 	}
 	
 	public void doTree(boolean b) {
@@ -44,18 +47,23 @@ public class ActionComponent extends Component {
 			action.actionIndex = i;
 			action.object = getEntity();
 		}
+		if(b == false) {
+			doTree = false; 
+			actions.clear();
+			curAction = null;
+			return;
+		}
 		
 		//Switch by type of NPC
 		switch(tree.trim()){
 		case "Chef":
 			//Add the starting action of the chef
-			this.actions.add(new WaitToCook());
+			this.actions.add(new FindChefStation());
 			
 			break;
 		case "Customer":
 			//Starting wait on customer spawn (party size based on capacity)
 			this.actions.add(new CreateParty());
-			
 			//Once we have our group, find a table to sit at
 			this.actions.add(new FindTable());
 			this.actions.add(new IdleStay());
@@ -109,6 +117,8 @@ public class ActionComponent extends Component {
 		if(actions.size() > 0) {
 			curAction = actions.get(0);	
 			curAction.start();
+		} else if(tree != "Customer") {
+			this.doTree(true);
 		}
 	}
 	
@@ -154,7 +164,7 @@ public class ActionComponent extends Component {
 
 	@Override
 	public Component copyInstance() {
-		return new ActionComponent(tree);
+		return new ActionComponent(tree, true);
 	}
 
 

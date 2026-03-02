@@ -1,3 +1,4 @@
+#version 130
 
 in vec2 textureCoords;
 

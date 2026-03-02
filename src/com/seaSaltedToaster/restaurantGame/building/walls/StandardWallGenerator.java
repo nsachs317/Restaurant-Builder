@@ -98,7 +98,7 @@ public class StandardWallGenerator extends WallGenerator {
 		
 		if(addToBatch) {
 			BuildLayer layer = MainApp.restaurant.layers.get(BuildingManager.curLayer);
-			layer.addBuilding(wall, BuildingList.getBuilding(wallType.getWallType()), -127);	
+			layer.addBuilding(wall, BuildingList.getBuilding(wallType.getWallType()), -127, true);	
 		}
 		
 		return wall;

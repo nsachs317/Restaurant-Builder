@@ -7,6 +7,8 @@ import org.lwjgl.opengl.GL12;
 import org.lwjgl.opengl.GL14;
 import org.lwjgl.opengl.GL30;
 
+import com.seaSaltedToaster.simpleEngine.renderer.window.Window;
+
 public class Fbo {
 	
 	public static final int NONE = 0;
@@ -69,8 +71,16 @@ public class Fbo {
 		return depthTexture;
 	}
 
+	public int getFrameBuffer() {
+		return frameBuffer;
+	}
+
+	public void setFrameBuffer(int frameBuffer) {
+		this.frameBuffer = frameBuffer;
+	}
+
 	private void initialiseFrameBuffer(int type) {
-		System.out.println(width + " : " + height);
+		System.out.println("Initialized Frame Buffer : (" + width + " , " + height + ")");
 		createFrameBuffer();
 		createTextureAttachment();
 		if (type == DEPTH_RENDER_BUFFER) {

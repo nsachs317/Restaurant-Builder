@@ -14,7 +14,7 @@ import com.seaSaltedToaster.simpleEngine.input.listeners.MouseListener;
 import com.seaSaltedToaster.simpleEngine.input.listeners.MousePosData;
 import com.seaSaltedToaster.simpleEngine.input.listeners.MousePosListener;
 import com.seaSaltedToaster.simpleEngine.input.listeners.ScrollListener;
-import com.seaSaltedToaster.simpleEngine.renderer.Window;
+import com.seaSaltedToaster.simpleEngine.renderer.window.Window;
 import com.seaSaltedToaster.simpleEngine.utilities.MathUtils;
 import com.seaSaltedToaster.simpleEngine.utilities.SmoothFloat;
 import com.seaSaltedToaster.simpleEngine.utilities.SmoothVector;
@@ -103,26 +103,26 @@ public class WorldCamera extends Camera implements ScrollListener, MousePosListe
 			return;
 		
 		boolean isRightDown = GLFW.glfwGetMouseButton(Window.windowID, RIGHT_MOUSE) == GLFW.GLFW_PRESS;
+		boolean isMiddleDown = GLFW.glfwGetMouseButton(Window.windowID, GLFW.GLFW_MOUSE_BUTTON_MIDDLE) == GLFW.GLFW_PRESS;
 		
 		//Get change
 		float xChange = (float) (lastX - eventData.getMouseX());
 		float yChange = (float) (lastY - eventData.getMouseY());
 		
 		//Pitch / Y
-		if(isRightDown) {
+		if(isMiddleDown) {
 			float pitchChange = yChange * -0.3f;
 			smoothPitch.increaseTarget(pitchChange);
 		}
 			
 		//Outer angle
-		if(isRightDown) {
+		if(isMiddleDown) {
 			float angleChange = xChange * 0.3f;
 			smoothYaw.increaseTarget(angleChange);
 		}
 		
 		//Move with middle mouse
-		boolean isMiddleDown = GLFW.glfwGetMouseButton(Window.windowID, GLFW.GLFW_MOUSE_BUTTON_MIDDLE) == GLFW.GLFW_PRESS;
-		if(isMiddleDown) {
+		if(isRightDown) {
 			float cap = 250.0f;
 			Vector3f belowCam = new Vector3f(position.x, 0, position.z);
 			Vector3f direction = focus.getPosition().copy().subtract(belowCam);

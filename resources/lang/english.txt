@@ -15,3 +15,5 @@ groundtype_snow,Snowy;
 groundtype_arid,Arid;
 modetype_career,Career;
 modetype_creative,Creative;
+buy_price,Price : val1;
+employees_title,Employees;

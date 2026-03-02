@@ -45,6 +45,7 @@ public class ObjectLoader {
 		//Set the right settings
 		building.name = name;
 		building.type = type;
+		building.modelPath = "models/" + modelLoc;
 		building.setPrice(price);
 		building.setIconZoom(iconZoom);
 		building.setCategory(BuildingList.getCategory(category));
@@ -86,6 +87,7 @@ public class ObjectLoader {
 
 	private List<String>  openModelFile(String file) {
 		//Open file
+		System.out.println("Reading building file : " + file);
 		isr = new InputStreamReader(ObjLoader.class.getResourceAsStream("/buildings/" + file + ".rtbuilding"));
 		bufferedReader = new BufferedReader(isr);
 		

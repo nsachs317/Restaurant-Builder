@@ -11,21 +11,21 @@ public class ItemOrder {
 	public static int totalId = 0;
 	
 	//Order id
-	private int id; //0
+	private int id, tableId, seatId; //0, 8, 9
 	
 	//Table data
 	private TableComponent table; //1
 	private SeatComponent seat; //2
 	
 	//Food status
-	private Food foodItem; //3
-	private boolean isTaken = false, isDelivered = false; //4,5
+	private Food[] foodItem; //7
+	private boolean isTaken = false, isDelivered = false; //3,4
 
 	//Cooking
-	private boolean isCooked = false; //6
-	private Entity chefWhoCooked; //7
+	private boolean isCooked = false; //5
+	private Entity chefWhoCooked; //6
 	
-	public ItemOrder(TableComponent table, SeatComponent seat, Food foodItem) {
+	public ItemOrder(TableComponent table, SeatComponent seat, Food[] foodItem) {
 		this.table = table;
 		this.seat = seat;
 		this.foodItem = foodItem;
@@ -40,6 +40,14 @@ public class ItemOrder {
 
 	public void setId(int id) {
 		this.id = id;
+	}
+
+	public int getTableId() {
+		return tableId;
+	}
+
+	public void setTableId(int tableId) {
+		this.tableId = tableId;
 	}
 
 	public Entity getChefWhoCooked() {
@@ -59,7 +67,8 @@ public class ItemOrder {
 	}
 
 	public float getCookingTime() {
-		return foodItem.getCookTime();
+		//return foodItem[0].getCookTime(); //TODO Cook times
+		return 7;
 	}
 
 	public boolean isDelivered() {
@@ -94,11 +103,11 @@ public class ItemOrder {
 		this.seat = seat;
 	}
 
-	public Food getFoodItem() {
+	public Food[] getFoodItem() {
 		return foodItem;
 	}
 
-	public void setFoodItem(Food foodItem) {
+	public void setFoodItem(Food[] foodItem) {
 		this.foodItem = foodItem;
 	}
 	

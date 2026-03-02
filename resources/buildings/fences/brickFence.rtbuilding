@@ -1,8 +1,8 @@
 name=Brick Fence
-type=Wall
+type=Edge
 price=10
 iconZoom=0.66
-category=Garden
+category=Building
 model=basic/fences/brickFence
 primary=0.7,0.3,0.25
 secondary=0.0,0.0,0.0

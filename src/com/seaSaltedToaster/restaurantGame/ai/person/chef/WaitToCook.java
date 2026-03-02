@@ -36,7 +36,10 @@ public class WaitToCook extends Action {
 			boolean canDeliver = (order.isTaken() && !order.isCooked());
 			if(canDeliver) {
 				ChefComponent comp = (ChefComponent) object.getComponent("Chef");
+				comp = MainApp.restaurant.chefs.get(0);
 				comp.deliverOrder(order);
+				System.out.println("Chef is now taking cooking order : " + order.getId());
+
 				return true;
 			}
 		}

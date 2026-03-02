@@ -5,7 +5,8 @@ import com.seaSaltedToaster.restaurantGame.building.BuildingId;
 import com.seaSaltedToaster.restaurantGame.building.categories.BuildingCategory;
 import com.seaSaltedToaster.restaurantGame.tools.ColorPalette;
 import com.seaSaltedToaster.simpleEngine.entity.componentArchitecture.ModelComponent;
-import com.seaSaltedToaster.simpleEngine.renderer.Window;
+import com.seaSaltedToaster.simpleEngine.renderer.window.Window;
+import com.seaSaltedToaster.simpleEngine.renderer.window.WindowListener;
 import com.seaSaltedToaster.simpleEngine.uis.UiComponent;
 import com.seaSaltedToaster.simpleEngine.uis.constraints.XAlign;
 import com.seaSaltedToaster.simpleEngine.uis.constraints.UiConstraints;
@@ -85,12 +86,12 @@ public class BuildingItem extends UiComponent {
 		
 		this.scale.setTarget(nScale);
 	}
-
+	
 	private void createPanel() {
 		this.scale = new SmoothFloat(-0.25f);
 		this.scale.setValue(-0.5f);
 		this.scale.setTarget(1.0f);
-		
+				
 		int tex = menu.getEngine().getTextureLoader().loadTexture("/uis/slotBack");
 		this.setTexture(tex);
 		
@@ -141,6 +142,10 @@ public class BuildingItem extends UiComponent {
 
 	public BuildingCategory getCategory() {
 		return category;
+	}
+
+	public UiComponent getIconComp() {
+		return iconComp;
 	}
 
 }

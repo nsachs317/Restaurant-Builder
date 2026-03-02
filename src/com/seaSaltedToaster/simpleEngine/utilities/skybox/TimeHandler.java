@@ -1,6 +1,6 @@
 package com.seaSaltedToaster.simpleEngine.utilities.skybox;
 
-import com.seaSaltedToaster.simpleEngine.renderer.Window;
+import com.seaSaltedToaster.simpleEngine.renderer.window.Window;
 
 public class TimeHandler {
 	
@@ -17,6 +17,9 @@ public class TimeHandler {
 	private float midday = 12;
 	private float evening = 18;
 	private float midnightLate = 24; //old day
+	
+	public static float gameTime;
+	public static float timeSpeed = 1;
 
 	public TimeHandler() {
 		TimeHandler.hour = 8f;
@@ -26,7 +29,10 @@ public class TimeHandler {
 	public void updateTime() {
 		//Add to time
 		float delta = (float) Window.DeltaTime;
-		minute += (daySpeed * delta);
+		
+		TimeHandler.gameTime = delta * timeSpeed;
+		
+		minute += (daySpeed * timeSpeed * delta);
 		if(minute >= 60) {
 			hour++;
 			minute = 0;

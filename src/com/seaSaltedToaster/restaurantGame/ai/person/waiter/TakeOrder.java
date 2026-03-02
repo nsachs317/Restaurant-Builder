@@ -8,6 +8,7 @@ import com.seaSaltedToaster.restaurantGame.ai.person.WaitAction;
 import com.seaSaltedToaster.restaurantGame.building.BuildingId;
 import com.seaSaltedToaster.restaurantGame.objects.Restaurant;
 import com.seaSaltedToaster.restaurantGame.objects.food.ItemOrder;
+import com.seaSaltedToaster.restaurantGame.objects.people.ServerComponent;
 import com.seaSaltedToaster.restaurantGame.save.SaveSystem;
 
 public class TakeOrder extends Action {
@@ -15,19 +16,17 @@ public class TakeOrder extends Action {
 	public static int TAKE_ORDER_WAIT = 5;
 	
 	private ItemOrder order;
-	private int orderId = -1;
 	
-	public TakeOrder(ItemOrder order) {
-		if(order == null) return;
-		this.order = order;
-		this.orderId = order.getId();
+	public TakeOrder(ItemOrder itemOrder) {
+		if(itemOrder == null) return;
+		this.order = itemOrder;
 	}
 
 	@Override
 	public void start() {
-		if(order == null) {
-			this.order = MainApp.restaurant.getOrder(orderId);
-		}
+//		if(order == null) { //TODO is this important?
+//			this.order = MainApp.restaurant.getOrder(orderId);
+//		}
 	}
 
 	@Override
@@ -38,10 +37,15 @@ public class TakeOrder extends Action {
 	@Override
 	public boolean isDone() {
 		//Meet preconditions
-		if(order == null || !meetsPreconditions()) return false;
+		if(!meetsPreconditions()) return false;
+		
+		if(order == null) return true;
 		
 		//Change the values of the ItemOrder
-		this.order.setTaken(true);
+		order.setTaken(true);
+		
+		ServerComponent c = (ServerComponent) object.getComponent("Server");
+		c.setStatus("Taking Order");
 		
 		//Add the next few tasks
 		Restaurant rest = MainApp.restaurant;
@@ -72,14 +76,24 @@ public class TakeOrder extends Action {
 
 		if(order == null)
 			system.saveAction(index, super.actionIndex, type(), "TAKE_ORDER[" + -32767 + "]");
-		else
-			system.saveAction(index, super.actionIndex, type(), "TAKE_ORDER[" + order.getId() + "]");
+		else {
+			String saveData = "";
+			saveData += ("" + order.getId() +","); 
+			system.saveAction(index, super.actionIndex, type(), "TAKE_ORDER[" + saveData.substring(0, saveData.length()-1) + "]");
+		}
 	}
 
 	@Override
 	public void loadAction(String data) {
 		String line = data.replace("[", "").replace("]", "").replace("TAKE_ORDER", "").replace(";", "");
-		this.orderId = Integer.parseInt(line);
+		String[] ids = line.split(",");
+		for(String part : ids) {
+			int id = Integer.parseInt(part);
+			if((Integer) id == null || id == -32767)
+				System.err.println("Could not read order ID");
+			
+			order = MainApp.restaurant.getOrder(id);
+		}
 	}
 
 }

@@ -2,7 +2,7 @@ package com.seaSaltedToaster.restaurantGame.menus;
 
 import com.seaSaltedToaster.restaurantGame.tools.ColorPalette;
 import com.seaSaltedToaster.simpleEngine.Engine;
-import com.seaSaltedToaster.simpleEngine.renderer.Window;
+import com.seaSaltedToaster.simpleEngine.renderer.window.Window;
 import com.seaSaltedToaster.simpleEngine.uis.UiComponent;
 import com.seaSaltedToaster.simpleEngine.uis.constraints.UiConstraints;
 import com.seaSaltedToaster.simpleEngine.uis.constraints.XAlign;
@@ -95,7 +95,6 @@ public class GeneralButton extends UiComponent {
 			this.setColor(highlight);
 		else
 			this.setColor(base);
-		System.out.println(inUse);
 	}
 
 }

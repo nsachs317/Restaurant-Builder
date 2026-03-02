@@ -5,14 +5,15 @@ import com.seaSaltedToaster.restaurantGame.building.Building;
 import com.seaSaltedToaster.restaurantGame.building.categories.BuildingList;
 import com.seaSaltedToaster.simpleEngine.entity.Entity;
 import com.seaSaltedToaster.simpleEngine.entity.componentArchitecture.Component;
-import com.seaSaltedToaster.simpleEngine.renderer.Window;
+import com.seaSaltedToaster.simpleEngine.renderer.window.Window;
 import com.seaSaltedToaster.simpleEngine.utilities.Timer;
+import com.seaSaltedToaster.simpleEngine.utilities.skybox.TimeHandler;
 
 public class DoorComponent extends Component {
 
 	//Timing
 	private Timer timer;
-	private int waitTime = 1;
+	private int waitTime = 3;
 	
 	@Override
 	public void init() {
@@ -22,10 +23,10 @@ public class DoorComponent extends Component {
 
 	@Override
 	public void update() {
-		this.timer.update(Window.DeltaTime);
+		this.timer.update(TimeHandler.gameTime);
 		
 		Restaurant restaurant = MainApp.restaurant;
-		if(timer.isFinished() && !restaurant.atCapacity() && restaurant.capacity() > 0) {
+		if(timer.isFinished() && !restaurant.atCapacity() && restaurant.capacity() > 0 && restaurant.isOpen) {
 			spawnPerson(restaurant); //TODO SPAWN PEOPLE
 		}
 	}
@@ -33,7 +34,7 @@ public class DoorComponent extends Component {
 	private void spawnPerson(Restaurant restaurant) {
 		//Random
 		float random = (float) Math.abs(Math.random());
-		if(random < 0.75f) {
+		if(random < 0.5f) {
 			timer.stop();
 			timer.start();
 			return;
@@ -45,7 +46,7 @@ public class DoorComponent extends Component {
 		newEnt.getTransform().setPosition(entity.getTransform().getPosition().copy());
 		
 		//Get layer
-		restaurant.layers.get(0).addBuilding(newEnt, spawn, -127);
+		restaurant.layers.get(0).addBuilding(newEnt, spawn, -127, true);
 		
 		//Timer
 		timer.stop();

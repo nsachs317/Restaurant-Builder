@@ -13,7 +13,7 @@ public class IdleStay extends Action {
 
 	@Override
 	public void update() {
-
+		
 	}
 
 	@Override

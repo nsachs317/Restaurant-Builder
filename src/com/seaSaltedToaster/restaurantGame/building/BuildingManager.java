@@ -8,6 +8,7 @@ import org.lwjgl.glfw.GLFW;
 import com.seaSaltedToaster.MainApp;
 import com.seaSaltedToaster.restaurantGame.ai.PathfindingWorld;
 import com.seaSaltedToaster.restaurantGame.building.floors.FloorBuilder;
+import com.seaSaltedToaster.restaurantGame.building.grid.PlacementGrid;
 import com.seaSaltedToaster.restaurantGame.building.layers.BuildLayer;
 import com.seaSaltedToaster.restaurantGame.building.layers.PlacementListener;
 import com.seaSaltedToaster.restaurantGame.building.objects.BuildingRenderer;
@@ -17,15 +18,18 @@ import com.seaSaltedToaster.restaurantGame.building.walls.WallBuilder;
 import com.seaSaltedToaster.restaurantGame.ground.Ground;
 import com.seaSaltedToaster.restaurantGame.tools.RayMode;
 import com.seaSaltedToaster.restaurantGame.tools.Raycaster;
+import com.seaSaltedToaster.restaurantGame.tools.Reporter;
 import com.seaSaltedToaster.simpleEngine.Engine;
 import com.seaSaltedToaster.simpleEngine.entity.Entity;
 import com.seaSaltedToaster.simpleEngine.entity.Transform;
 import com.seaSaltedToaster.simpleEngine.entity.componentArchitecture.Component;
 import com.seaSaltedToaster.simpleEngine.input.listeners.KeyEventData;
 import com.seaSaltedToaster.simpleEngine.input.listeners.KeyListener;
+import com.seaSaltedToaster.simpleEngine.input.listeners.MouseEventData;
+import com.seaSaltedToaster.simpleEngine.input.listeners.MouseListener;
 import com.seaSaltedToaster.simpleEngine.utilities.Vector3f;
 
-public class BuildingManager implements KeyListener {
+public class BuildingManager implements KeyListener, MouseListener {
 	
 	//Building entity
 	public static List<PlacementListener> listeners = new ArrayList<PlacementListener>();
@@ -64,9 +68,10 @@ public class BuildingManager implements KeyListener {
 		this.objectBuilder = new ObjectBuilder(this, preview);
 		this.renderer = new BuildingRenderer(this, engine);
 		this.selectRenderer = new SelectionRenderer(this, engine);
-		
+				
 		//Engine
 		engine.getKeyboard().addKeyListener(this);
+		engine.getMouse().getMouseButtonCallback().addListener(this);
 	}
 	
 	public void createLayers() {
@@ -87,6 +92,9 @@ public class BuildingManager implements KeyListener {
 			break;
 		case WALL:
 			this.wallBuilder.click(position);
+			break;
+		case WALL_CLASSIC :
+			this.objectBuilder.placeAt(layer);
 			break;
 		case FLOOR: 
 			this.floorBuilder.click(position);
@@ -109,6 +117,7 @@ public class BuildingManager implements KeyListener {
 			this.floorBuilder.update(rawPosition);
 			break;
 		default:
+			this.objectBuilder.movePreview(rawPosition);
 			break;
 		}
 
@@ -124,8 +133,11 @@ public class BuildingManager implements KeyListener {
 	}
 	
 	public void renderSelection() {
+		Reporter.report("Preparing Selection");
 		this.selectRenderer.prepare();
+		Reporter.report("Rendering Selection");
 		this.selectRenderer.render(null);
+		Reporter.report("Ending Selection");
 		this.selectRenderer.endRender();
 	}
 	
@@ -157,6 +169,23 @@ public class BuildingManager implements KeyListener {
 			case DEFAULT:
 				break;
 			case FLOOR:
+				break;
+			default:
+				break;
+			}
+		}
+	}
+	
+	@Override
+	public void notifyButton(MouseEventData eventData) {
+		boolean rightClicked = (eventData.getAction() == GLFW.GLFW_PRESS && eventData.getKey() == GLFW.GLFW_MOUSE_BUTTON_RIGHT);
+		if(rightClicked) {
+			setBuilding(false);
+			switch(Raycaster.mode) {
+			case DEFAULT:
+				break;
+			case WALL:
+				this.wallBuilder.stop();
 				break;
 			default:
 				break;
@@ -203,6 +232,12 @@ public class BuildingManager implements KeyListener {
 			Raycaster.mode = RayMode.WALL;
 			this.wallBuilder.set(building);
 			break;
+		case Edge :
+			Raycaster.mode = RayMode.WALL_CLASSIC;
+			this.objectBuilder.setObject(building);
+			this.objectBuilder.showPreview(true);
+			movePreview(Raycaster.lastRay);
+			break;
 		default:
 			Raycaster.mode = RayMode.DEFAULT;
 			this.objectBuilder.setObject(building);
@@ -216,10 +251,6 @@ public class BuildingManager implements KeyListener {
 	
 	public void delete(Entity entity) {
 		for(BuildLayer layer : layers) {
-			for(Component comp : entity.getComponents()) {
-				comp.reset();
-			}
-			layer.getBuildings().remove(entity);
 			pathWorld.removeBuilding(entity, layer);
 		}
 	}

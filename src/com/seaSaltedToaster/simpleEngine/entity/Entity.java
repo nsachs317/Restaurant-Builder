@@ -3,6 +3,7 @@ package com.seaSaltedToaster.simpleEngine.entity;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.seaSaltedToaster.restaurantGame.building.BuildingId;
 import com.seaSaltedToaster.simpleEngine.entity.componentArchitecture.Component;
 import com.seaSaltedToaster.simpleEngine.entity.componentArchitecture.ModelComponent;
 import com.seaSaltedToaster.simpleEngine.models.Vao;
@@ -19,6 +20,12 @@ public class Entity {
 	//Create entity
 	public Entity(Transform transform) {
 		this.transform = transform;
+		this.components = new ArrayList<Component>();
+	}
+	
+	public Entity(Vector3f position) {
+		this.transform = new Transform();
+		this.setPosition(position);
 		this.components = new ArrayList<Component>();
 	}
 	
@@ -61,7 +68,7 @@ public class Entity {
 	}
 
 	public void addComponent(Component component) {
-		if(hasComponent(component.getComponentType())) return;
+		if(hasComponent(component.getComponentType()) && component.getComponentType() != "Chair") return;
 		components.add(component);
 		component.setEntity(this);
 		component.init();
@@ -88,6 +95,10 @@ public class Entity {
 			}
 		}
 		return null;
+	}
+	
+	public int getId() {
+		return ((BuildingId) this.getComponent("BuildingId")).getId();
 	}
 	
 	public Vector3f getPosition() {

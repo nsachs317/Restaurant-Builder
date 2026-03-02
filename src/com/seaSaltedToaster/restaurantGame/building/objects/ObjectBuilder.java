@@ -38,7 +38,7 @@ public class ObjectBuilder {
 	public void placeAt(BuildLayer layer) {
 		boolean alreadyBuildingAt = !layer.isBuildingAt(preview.getPosition(), object.type);
 		if(alreadyBuildingAt) {
-			layer.addBuilding(preview.copyEntity(), object, -127);
+			layer.addBuilding(preview.copyEntity(), object, -127, true);
 			MainApp.restaurant.money -= object.getPrice();
 			buildingIndex++;
 		}
@@ -60,7 +60,7 @@ public class ObjectBuilder {
 			return;
 		}
 		this.lastChange.setPosition(position);
-	}
+			}
 	
 	
 	private Vector3f calculatePlacePosition(Vector3f placement) {
@@ -99,13 +99,31 @@ public class ObjectBuilder {
 			case Pillar:
 				snapPosition = new Vector3f(snap(placement.x, 4.0f), 0, snap(placement.z, 4.0f));
 				break;
-			case Wall:
-				snapPosition = new Vector3f(snap(placement.x, 3.0f), 0, snap(placement.z, 3.0f));
+			case Edge:
+				snapPosition = new Vector3f(snapEdge(placement.x, 2.0f), 0, snapEdge(placement.z, 2.0f));
+				boolean xHalf = (Math.abs(snapPosition.x % 1.0f) == 0.5f), zHalf = (Math.abs(snapPosition.z % 1.0f) == 0.5f);
+				if(xHalf && zHalf || !(xHalf || zHalf))
+					snapPosition = lastChange.getPosition();
+				
+				if(Math.abs(snapPosition.x % 1.0f) == 0.5f) {
+					preview.getTransform().getRotation().setY(00);
+				}
+				if(Math.abs(snapPosition.z % 1.0f) == 0.5f) {
+					preview.getTransform().getRotation().setY(90);
+				}
+				System.out.println(snapPosition.x % 1.0);
 				break;
 		}		
 		return snapPosition;
 	}
 	
+	private float snapEdge(float value, float gridSize) {
+		float snap = (gridSize / 1.0f);
+		float snapOffset = -0.5f;
+		float snapValue = (Math.round((value-snapOffset) * snap) / snap) + snapOffset;
+		return snapValue;
+	}
+
 	private Vector3f snapToWall(WallComponent wallComp, Vector3f placement) {
 		//Calculate X and Z line
 		Vector3f snapPosition = new Vector3f(0.0f);

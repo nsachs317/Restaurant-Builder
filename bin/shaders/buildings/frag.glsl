@@ -1,9 +1,10 @@
+#version 130
 
 const vec4 nightColor = vec4(0.0f);
 
 const vec3 primaryInd = vec3(0.1f, 0.15f, 0.2f);
 const vec3 secondaryInd = vec3(0.2f, 0.15f, 0.1f);
-const float factor = 0.25;
+const float factor = 1.5;
 
 in vec3 pass_color;
 in vec3 surfaceNormal;
@@ -19,6 +20,8 @@ uniform float dayValue;
 uniform vec3 primaryColor;
 uniform vec3 secondaryColor;
 
+uniform bool snow;
+
 void main(void)	{
 
 	vec4 baseColor = vec4(pass_color, 1.0f);
@@ -32,19 +35,19 @@ void main(void)	{
 		float offset = baseColor.z;
 		baseColor = vec4(secondaryColor + vec3(offset), 1.0f);
 	}
-		
-	vec4 litColor = mix(baseColor, nightColor, dayValue);
 	
-	if(currentId == selectedId || currentId == -1) {
-		float x = (litColor.x > 0.5) ? litColor.x - factor : litColor.x + factor;
-		float y = (litColor.y > 0.5) ? litColor.y - factor : litColor.y + factor;
-		float z = (litColor.z > 0.5) ? litColor.z - factor : litColor.z + factor;
+	float dayMix = clamp(dayValue, 0.25, 0.75);
+	vec4 litColor = mix(baseColor, nightColor, dayMix);
+	
+	if(currentId == selectedId) {
+		float x = litColor.x * factor;
+		float y = litColor.y * factor;
+		float z = litColor.z * factor;
 		litColor = vec4(x, y, z, 1);
 	}
 	
 	out_Color = litColor;
 	
-	bool snow = false;
 	if(snow)
 	{
 		float normalSnow = dot(surfaceNormal, vec3(0,1,0));

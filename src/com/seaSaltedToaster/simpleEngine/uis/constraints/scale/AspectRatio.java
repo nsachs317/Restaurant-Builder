@@ -1,6 +1,6 @@
 package com.seaSaltedToaster.simpleEngine.uis.constraints.scale;
 
-import com.seaSaltedToaster.simpleEngine.renderer.Window;
+import com.seaSaltedToaster.simpleEngine.renderer.window.Window;
 import com.seaSaltedToaster.simpleEngine.uis.UiComponent;
 import com.seaSaltedToaster.simpleEngine.uis.constraints.ConstraintType;
 import com.seaSaltedToaster.simpleEngine.uis.constraints.UiConstraint;

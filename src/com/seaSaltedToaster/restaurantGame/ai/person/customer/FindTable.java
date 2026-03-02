@@ -1,5 +1,8 @@
 package com.seaSaltedToaster.restaurantGame.ai.person.customer;
 
+import java.util.Collections;
+
+import com.seaSaltedToaster.MainApp;
 import com.seaSaltedToaster.restaurantGame.ai.person.Action;
 import com.seaSaltedToaster.restaurantGame.ai.person.ActionComponent;
 import com.seaSaltedToaster.restaurantGame.ai.person.GoToAction;
@@ -58,6 +61,7 @@ public class FindTable extends Action {
 
 		//Move all people to the table PartyLeader
 		PartyLeader leader = (PartyLeader) object.getComponent("PartyLeader");
+		leader.setTable((TableComponent)table.getComponent("Table"));
 		for(Entity member : leader.getPartyMembers()) {
 			GoToAction mAction = new GoToAction(table.getPosition(), member, false);
 			SitDownAction mSitAction = new SitDownAction(table);
@@ -83,15 +87,14 @@ public class FindTable extends Action {
 		//Find a valid table
 		PartyLeader leader = (PartyLeader) object.getComponent("PartyLeader");
 		int partySize = leader.getPartyMembers().size() + 1;
-		for(Entity obj : layer.getBuildings()) {
-			if(obj == null) continue;
-			if(obj.hasComponent("Table")) {
-				TableComponent component = (TableComponent) obj.getComponent("Table");
-				if(!component.isTaken() && component.getCapacity() >= partySize) {
-					component.setTaken(true);
-					return obj;
-				}
+		
+		Collections.shuffle(MainApp.restaurant.tables);
+		for(TableComponent table : MainApp.restaurant.tables) {
+			if(table.isTaken() || table.getCapacity() < partySize || table == null) {
+				continue;
 			}
+			table.setTaken(true);
+			return table.getEntity();
 		}
 		
 		//Return

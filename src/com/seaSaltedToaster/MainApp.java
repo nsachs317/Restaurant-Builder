@@ -4,11 +4,13 @@ import org.lwjgl.glfw.GLFW;
 
 import com.seaSaltedToaster.restaurantGame.WorldCamera;
 import com.seaSaltedToaster.restaurantGame.ai.person.ActionComponent;
+import com.seaSaltedToaster.restaurantGame.ai.person.NodeViewer;
 import com.seaSaltedToaster.restaurantGame.ai.person.customer.PartyLeader;
 import com.seaSaltedToaster.restaurantGame.ai.person.customer.PartySeating;
 import com.seaSaltedToaster.restaurantGame.audio.TrackPlayer;
 import com.seaSaltedToaster.restaurantGame.building.BuildingManager;
 import com.seaSaltedToaster.restaurantGame.building.categories.BuildingList;
+import com.seaSaltedToaster.restaurantGame.building.grid.PlacementGrid;
 import com.seaSaltedToaster.restaurantGame.building.layers.BuildLayer;
 import com.seaSaltedToaster.restaurantGame.ground.Ground;
 import com.seaSaltedToaster.restaurantGame.menus.DeleteTool;
@@ -17,6 +19,7 @@ import com.seaSaltedToaster.restaurantGame.menus.MoneyCounter;
 import com.seaSaltedToaster.restaurantGame.menus.PaintMenu;
 import com.seaSaltedToaster.restaurantGame.menus.TimeDisplay;
 import com.seaSaltedToaster.restaurantGame.menus.buildingSelector.BuildingMenu;
+import com.seaSaltedToaster.restaurantGame.menus.debug.DebugMenu;
 import com.seaSaltedToaster.restaurantGame.menus.employees.EmployeeMenu;
 import com.seaSaltedToaster.restaurantGame.menus.layers.LayerMenu;
 import com.seaSaltedToaster.restaurantGame.menus.mainMenu.MainMenu;
@@ -25,15 +28,18 @@ import com.seaSaltedToaster.restaurantGame.menus.mainMenu.loadingScreen.LoadingS
 import com.seaSaltedToaster.restaurantGame.menus.mainMenu.savesMenu.CreateMenu;
 import com.seaSaltedToaster.restaurantGame.menus.mainMenu.savesMenu.SavesMenu;
 import com.seaSaltedToaster.restaurantGame.menus.mainMenu.settingsMenu.SettingsMenu;
+import com.seaSaltedToaster.restaurantGame.menus.mainMenu.tutorial.WelcomePanel;
+import com.seaSaltedToaster.restaurantGame.menus.management.ManagerMenu;
 import com.seaSaltedToaster.restaurantGame.objects.Restaurant;
 import com.seaSaltedToaster.restaurantGame.objects.food.ItemOrder;
 import com.seaSaltedToaster.restaurantGame.save.LoadSystem;
 import com.seaSaltedToaster.restaurantGame.save.SaveSystem;
 import com.seaSaltedToaster.restaurantGame.tools.Raycaster;
+import com.seaSaltedToaster.restaurantGame.tools.Reporter;
 import com.seaSaltedToaster.simpleEngine.Engine;
 import com.seaSaltedToaster.simpleEngine.audio.management.AudioMaster;
 import com.seaSaltedToaster.simpleEngine.entity.Entity;
-import com.seaSaltedToaster.simpleEngine.renderer.Window;
+import com.seaSaltedToaster.simpleEngine.renderer.window.Window;
 import com.seaSaltedToaster.simpleEngine.uis.UiComponent;
 import com.seaSaltedToaster.simpleEngine.utilities.ScreenshotUtils;
 import com.seaSaltedToaster.simpleEngine.utilities.Vector3f;
@@ -77,6 +83,7 @@ public class MainApp {
 			
 			//Menus in the game world
 			private GeneralMenu general;
+			private ManagerMenu managerMenu;
 			private BuildingMenu building;
 			private EmployeeMenu employee;
 			private PaintMenu paint;
@@ -87,10 +94,13 @@ public class MainApp {
 			private MoneyCounter moneyCounter;
 			private LayerMenu layerMenu;
 			private IntroFade introFade;
+			private DebugMenu debug;
 			
 			//Save system
 			private SaveSystem saveSystem;
 			private LoadSystem loadSystem;
+			
+			private PlacementGrid grid;
 			
 			UiComponent comp;
 			
@@ -111,6 +121,7 @@ public class MainApp {
 				 */
 				//Layers
 				this.ground = new Ground(25.0f, 0.25f, engine);
+				MainApp.restaurant.ground = ground;
 				
 				this.raycaster = new Raycaster(engine);
 				this.raycaster.ground = ground;
@@ -119,9 +130,16 @@ public class MainApp {
 				
 				//Ground the world is on
 				this.loadSystem = new LoadSystem(curSave);
+				this.loadSystem.loadInfo();
+				
 				this.ground.generateGround(loadSystem, engine);
 				
+				this.grid = new PlacementGrid(engine, 25.0f);
+
 				//Raycaster for building
+				
+				//Debug models
+				NodeViewer.vao = engine.getObjLoader().loadObjModel("cube");
 				
 				//Building manager
 				this.raycaster.builder = manager;
@@ -133,12 +151,16 @@ public class MainApp {
 				this.employee = new EmployeeMenu();
 				engine.addUi(employee);
 				
-//				this.layerMenu = new LayerMenu(manager, engine);
-//				engine.addUi(layerMenu);
+				this.managerMenu = new ManagerMenu(0);
+				engine.addUi(managerMenu);
+				
+				this.layerMenu = new LayerMenu(manager, engine);
+				engine.addUi(layerMenu);
 				
 				this.general = new GeneralMenu(engine);
 				this.general.setBuilding(building);
 				this.general.setEmployee(employee);
+				this.general.setManager(managerMenu);
 				engine.addUi(general);
 				
 				this.paint = new PaintMenu();
@@ -149,7 +171,7 @@ public class MainApp {
 				this.delete = new DeleteTool();
 				this.general.setDelete(delete);
 				
-				this.timeDisplay = new TimeDisplay();
+				this.timeDisplay = new TimeDisplay(engine);
 				engine.addUi(timeDisplay);
 				
 				this.moneyCounter = new MoneyCounter();
@@ -162,9 +184,14 @@ public class MainApp {
 				this.loadSystem.loadCamera((WorldCamera) engine.getCamera());
 				this.loadSystem.loadActions();
 				this.loadSystem.loadBuildings(manager);
+				this.loadSystem.loadEmployees(manager);
 				
 				this.saveSystem.loadOrders(restaurant);
 				this.saveSystem.loadChefOrders(restaurant);
+				
+				this.debug = new DebugMenu(engine);
+				
+				//engine.addUi(new WelcomePanel(engine));
 				
 				this.comp = new UiComponent(0);
 				this.comp.setScale(0.5f, 0.5f);
@@ -181,15 +208,14 @@ public class MainApp {
 				comp.setTexture(engine.getShadowRenderer().getShadowMap());
 				
 				introFade.update();
+				
+				grid.setShowGrid(building.isOpen());
+				grid.renderGrid(engine);
 			}
 
 			@Override
 			public void updateScene(Engine engine) {
 				manager.renderSelection();
-				
-				if(GLFW.glfwGetKey(Window.windowID, GLFW.GLFW_KEY_BACKSPACE) == GLFW.GLFW_PRESS) {
-					engine.setCurrentScene(MainApp.menu);
-				}
 			}
 
 			@Override
@@ -258,7 +284,7 @@ public class MainApp {
 				SaveSystem.createFolder();
 				
 				trackPlayer = new TrackPlayer();
-				trackPlayer.playNextTrack();
+//				trackPlayer.playNextTrack();
 				
 				/*
 				 * MENUS AND OBJECTS
@@ -296,6 +322,7 @@ public class MainApp {
 				mainMenu.getBackground().setActive(false);
 				settingsMenu.getMainBody().setActive(false);
 				savesMenu.getMainBody().setActive(false);
+				loadingScreen.getCover().setActive(false);
 			}
 			
 		};
@@ -303,9 +330,13 @@ public class MainApp {
 		//Set the new scene
 		engine.setCurrentScene(menu);
 		
+		//Debug interface
+		double lastTime = GLFW.glfwGetTime();
+		
 		//Update per frame
 		while(!engine.getWindow().shouldClose()) {	
 			//Prepare new frame
+			Reporter.report("Update Restaurant");
 			engine.prepareFrame();
 			restaurant.update();
 			
@@ -313,23 +344,35 @@ public class MainApp {
 			engine.startPostProcess();
 			
 			//Render Normal Pass
+			Reporter.report("Render Scene");
 			engine.renderScene();
 			engine.render();
 			
 			//Post processing
+			Reporter.report("Post Process");
 			engine.postProcess();
 			
 			//Render Uis on top
+			Reporter.report("Update Scene");
 			engine.updateScene();
+			Reporter.report("Render UIs");
 			engine.renderUis();
+			Reporter.section("Update Engine");
 			engine.update();
 			
+			Reporter.report("Other");
 			trackPlayer.update();
 			//Check if we closed
 			
 			engine.getShadowRenderer().clear();
-			for(BuildLayer layer : restaurant.layers)
-				engine.renderShadows(layer.getBuildings());
+			//for(BuildLayer layer : restaurant.layers)
+				//engine.renderShadows(layer.getBuildings());
+			
+			if(GLFW.glfwGetTime() > lastTime+5) {
+				Reporter.report(); 
+				lastTime = GLFW.glfwGetTime();
+			}
+			Reporter.clear();
 			
 			if(quitApp)
 				break;

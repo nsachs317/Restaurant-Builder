@@ -1,5 +1,5 @@
 name=Door Frame
-type=Wall
+type=Edge
 price=20
 iconZoom=0.66
 category=General

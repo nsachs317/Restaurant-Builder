@@ -1,3 +1,4 @@
+#version 130
 
 in vec4 out_position;
 out vec4 out_Color;

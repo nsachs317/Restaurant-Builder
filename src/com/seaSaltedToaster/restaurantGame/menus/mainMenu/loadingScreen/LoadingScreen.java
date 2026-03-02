@@ -3,7 +3,7 @@ package com.seaSaltedToaster.restaurantGame.menus.mainMenu.loadingScreen;
 import com.seaSaltedToaster.MainApp;
 import com.seaSaltedToaster.MenuManager;
 import com.seaSaltedToaster.simpleEngine.Engine;
-import com.seaSaltedToaster.simpleEngine.renderer.Window;
+import com.seaSaltedToaster.simpleEngine.renderer.window.Window;
 import com.seaSaltedToaster.simpleEngine.uis.UiComponent;
 import com.seaSaltedToaster.simpleEngine.utilities.SmoothFloat;
 
@@ -51,6 +51,38 @@ public class LoadingScreen {
 		
 		this.coverAnim = new SmoothFloat(0.0f);
 		this.coverAnim.setAmountPer(0.025f);
+	}
+
+	public Engine getEngine() {
+		return engine;
+	}
+
+	public void setEngine(Engine engine) {
+		this.engine = engine;
+	}
+
+	public boolean isLoading() {
+		return isLoading;
+	}
+
+	public void setLoading(boolean isLoading) {
+		this.isLoading = isLoading;
+	}
+
+	public UiComponent getCover() {
+		return cover;
+	}
+
+	public void setCover(UiComponent cover) {
+		this.cover = cover;
+	}
+
+	public SmoothFloat getCoverAnim() {
+		return coverAnim;
+	}
+
+	public void setCoverAnim(SmoothFloat coverAnim) {
+		this.coverAnim = coverAnim;
 	}
 	
 }

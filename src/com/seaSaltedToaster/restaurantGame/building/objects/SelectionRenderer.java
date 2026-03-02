@@ -2,12 +2,16 @@ package com.seaSaltedToaster.restaurantGame.building.objects;
 
 import java.nio.ByteBuffer;
 
+import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL30;
+import org.lwjgl.opengl.GL40;
 
 import com.seaSaltedToaster.MainApp;
 import com.seaSaltedToaster.restaurantGame.building.BuildingId;
 import com.seaSaltedToaster.restaurantGame.building.BuildingManager;
 import com.seaSaltedToaster.restaurantGame.building.layers.BuildLayer;
+import com.seaSaltedToaster.restaurantGame.tools.Reporter;
 import com.seaSaltedToaster.simpleEngine.Engine;
 import com.seaSaltedToaster.simpleEngine.entity.Entity;
 import com.seaSaltedToaster.simpleEngine.entity.Transform;
@@ -15,7 +19,8 @@ import com.seaSaltedToaster.simpleEngine.entity.componentArchitecture.ModelCompo
 import com.seaSaltedToaster.simpleEngine.input.Mouse;
 import com.seaSaltedToaster.simpleEngine.renderer.Fbo;
 import com.seaSaltedToaster.simpleEngine.renderer.Renderer;
-import com.seaSaltedToaster.simpleEngine.renderer.Window;
+import com.seaSaltedToaster.simpleEngine.renderer.window.Window;
+import com.seaSaltedToaster.simpleEngine.uis.UiComponent;
 import com.seaSaltedToaster.simpleEngine.utilities.Matrix4f;
 import com.seaSaltedToaster.simpleEngine.utilities.OpenGL;
 import com.seaSaltedToaster.simpleEngine.utilities.Vector3f;
@@ -24,12 +29,15 @@ public class SelectionRenderer extends Renderer {
 
 	//Framebuffer
 	private Fbo fbo;
-	private ByteBuffer pixels;
+	private ByteBuffer pix;
+	private int[] data;
 	private int selectedId = -127;
 	
 	//Manager
 	private BuildingManager manager;
 	private Matrix4f transform;
+	
+	public UiComponent test;
 	
 	public SelectionRenderer(BuildingManager manager, Engine engine) {
 		super(new SelectionShader(), engine);
@@ -37,7 +45,13 @@ public class SelectionRenderer extends Renderer {
 		this.transform = new Matrix4f();
 		
 		this.fbo = new Fbo(Window.getWidth(), Window.getHeight(), Fbo.DEPTH_RENDER_BUFFER);
-		this.pixels = ByteBuffer.wrap(new byte[16]);
+		this.pix = BufferUtils.createByteBuffer(16);
+		this.data = new int[16];
+		
+//		this.test = new UiComponent(0);
+//		this.test.setScale(1f, -1f);
+//		this.test.setTexture(fbo.getColourTexture());
+//		//this.engine.addUi(test);
 	}
 
 	@Override
@@ -49,6 +63,9 @@ public class SelectionRenderer extends Renderer {
 	}
 
 	private void prepareFbo() {
+		if(fbo.getWidth() != Window.width || fbo.getHeight() != Window.getHeight()) {
+			this.fbo = new Fbo(Window.getWidth(), Window.getHeight(), Fbo.DEPTH_RENDER_BUFFER);
+		}
 		fbo.bindFrameBuffer();
 		OpenGL.setDepthTest(true);
 		OpenGL.clearColor();
@@ -71,8 +88,9 @@ public class SelectionRenderer extends Renderer {
 	}
 	
 	private void renderToFBO(Entity entity, Vector3f color) {
-		//Matrices
 		GL11.glViewport(0, 0, (int) Window.getWidth(), (int) Window.getHeight());
+		
+		//Matrices
 		Transform transform = entity.getTransform();
 		super.loadMatrices(transform);
 		shader.loadUniform(color, "objColor");
@@ -94,61 +112,66 @@ public class SelectionRenderer extends Renderer {
 		this.fbo.unbindFrameBuffer();
 		
 		//Get selected objects
-		byte[] bytes = readPixelColour();
-		int id = (int) (decodeIdFromColor(bytes) / 256);
+		int[] bytes = readPixelColour(); //Takes up 12% of frame time! TODO fix
+		int id = (int) (decodeIdFromColor(bytes));
 		this.selectedId = id;
 		Entity selected = BuildingManager.getBuildingWithID(id);
-		if(selected != null && !MainApp.menuFocused)
-			manager.setSelectedEntity(selected);
+		if(selected != null && !MainApp.menuFocused) {
+			manager.setSelectedEntity(selected); 
+		}
 		else
-			manager.setSelectedEntity(null);
-		System.out.println((selected != null) + " got : " + id);
+			manager.setSelectedEntity(null);		
+		this.fbo.unbindFrameBuffer();
 	}
 	
-	private byte[] readPixelColour() {
+	private int[] readPixelColour() {
 		this.fbo.bindToRead();
-		int mouseX = (int) Mouse.getMouseX();
-		int mouseY = (int) -Mouse.getMouseY() + (int) Window.getHeight();
-		pixels.clear();
-		GL11.glReadPixels(mouseX, mouseY, 1, 1, 6408, 5121, pixels);
+	    int mouseX = (int)Mouse.getMouseX();
+	    int mouseY = (int)-Mouse.getMouseY() + (int)Window.getHeight();
+	    GL11.glReadPixels(mouseX, mouseY, 1, 1, GL40.GL_RGBA, GL30.GL_UNSIGNED_BYTE, this.pix);
 	    this.fbo.unbindFrameBuffer();
-	    byte[] pix = pixels.array();
-	    return pix;
-	}
-	
-	  private static int F1 = 256;
-	  
-	  private static int F2 = F1 * F1;
-	
-	private Vector3f getIdColor(float index) {
-		float[] color = new float[4];
-		int id = (int) index;
-		if(id == selectedId)
-		color[3] = -1;
-		color[2] = (byte)(id % F1);
-	    id /= F1;
-	    color[1] = (byte)(id % F1);
-	    id /= F1;
-	    color[0] = (byte)(id % F1);
-	    
-		return new Vector3f(color[0],color[1],color[2]);
-	}
-		  		  
-	private static float decodeIdFromColor(byte[] colour) {
-	    int id = convertUnsignedByte(colour[2]);
-	    id += convertUnsignedByte(colour[1]) * F1;
-	    id += convertUnsignedByte(colour[0]) * F2;
-	    	    
-	    for(byte val : colour) {
-	    	System.out.print(val + ", ");
+	    for(int i = 0; i < 3; i++) {
+	    	if(pix.get(i) < 0) {
+	    		data[i] = (int)(257.0f - Math.abs(pix.get(i)));
+	    	}
+	    	else {
+	    		data[i] = pix.get(i);
+	    	}
 	    }
-	    System.out.println(";");
-	    return id;
+	    return data;
 	}
 	
-	private static int convertUnsignedByte(byte b) {
-		return (int) b & 0xFF;
-	}
+	  private static float F1 = 256.0f;
+	  
+	  private static float F2 = F1 * F1;
+	  
+	  private Vector3f getIdColor(float index) {
+			int id = (int) index;
+			float r = 0, g = 0, b = 0;
+			
+			for(int i = 0; id > 0; i++) {
+				r++;
+				if(r == F1) {
+					r = 0;
+					g++;
+					
+					if(g == F1) {
+						g = 0;
+						b++;
+					}
+					
+				}
+				id--;
+			}		    
+			return new Vector3f(r/F1,g/F1,b/F1);
+	  }
+		  		  
+	  private static float decodeIdFromColor(int[] bytes) {
+		    float id = (bytes[0]);
+		    id += (bytes[1]) * F1;
+		    id += (bytes[2]) * F2;
+		    return id;
+		  }
 
 	public Fbo getFbo() {
 		return fbo;

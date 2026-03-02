@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.seaSaltedToaster.MainApp;
+import com.seaSaltedToaster.restaurantGame.ai.person.NodeViewer;
 import com.seaSaltedToaster.restaurantGame.building.BuildingId;
 import com.seaSaltedToaster.restaurantGame.building.layers.BuildLayer;
 import com.seaSaltedToaster.simpleEngine.entity.componentArchitecture.Component;
@@ -23,11 +24,16 @@ public class PathfinderComponent extends Component {
 	private BuildLayer layer;
 	public PathfindingWorld wrld;
 	
+	//Debug viewer
+	public NodeViewer viewer;
+	
 	public PathfinderComponent() {
 		//Create path node list and pathfinder
 		this.curPath = new ArrayList<Node>();
 		this.pathfinder = new Pathfinder();
 		MainApp.restaurant.cmp = this;
+		
+		this.viewer = new NodeViewer();
 	}
 	
 	@Override
@@ -59,9 +65,12 @@ public class PathfinderComponent extends Component {
 		
 		//If the path doesnt exist, set an empty path and return an error
 		if(curPath == null || curPath.isEmpty()) {
-			System.err.println("Coundn't calculate path");
+			System.err.println("Coundn't calculate path"); //TODO give more details on error
 			this.curPath = new ArrayList<Node>();
 		}
+		
+		//Show path
+		viewer.showPath(curPath);
 		
 		//Move to the first node in the path
 		getNextNode();
@@ -71,12 +80,14 @@ public class PathfinderComponent extends Component {
 		//If there are more nodes
 		if(curPath.size() > 0) {
 			//Get the next available node
+			if(curNode != null)
+				viewer.removeNode(curNode);
 			curNode = curPath.get(0);
 			mover.setTarget(curNode.getNodePoint());
 		} 
 		//End of the path, stop entity
 		else {
-			mover.stop();
+			mover.stop(); viewer.end();
 		}
 	}
 	

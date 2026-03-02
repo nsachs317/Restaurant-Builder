@@ -70,7 +70,7 @@ public class Shader {
 	}
 	
 	private static int loadShader(String file, int type) {
-		System.out.println("Loading shader " + file);
+		System.out.println("Loading shader : " + file);
 		StringBuilder shaderSource = new StringBuilder();
 		
 		try{

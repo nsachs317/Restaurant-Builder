@@ -1,3 +1,4 @@
+#version 130
 
 in vec3 in_position;
 out vec4 out_position;

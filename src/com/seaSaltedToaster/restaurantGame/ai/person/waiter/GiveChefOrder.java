@@ -5,6 +5,7 @@ import com.seaSaltedToaster.restaurantGame.ai.person.Action;
 import com.seaSaltedToaster.restaurantGame.ai.person.ActionComponent;
 import com.seaSaltedToaster.restaurantGame.building.BuildingId;
 import com.seaSaltedToaster.restaurantGame.objects.food.ItemOrder;
+import com.seaSaltedToaster.restaurantGame.objects.people.ServerComponent;
 import com.seaSaltedToaster.restaurantGame.save.SaveSystem;
 
 public class GiveChefOrder extends Action {
@@ -13,7 +14,7 @@ public class GiveChefOrder extends Action {
 
 	public GiveChefOrder(ItemOrder order) {
 		if(order != null)
-			this.orderId = order.getId();
+			this.orderId = order.getId(); //TODO multiple orders
 	}
 
 	@Override
@@ -40,6 +41,11 @@ public class GiveChefOrder extends Action {
 		//Reset tree
 		ActionComponent aComp = (ActionComponent) object.getComponent("Action");
 		aComp.doTree(true);
+		
+		System.out.println("Waiter " + object.getId() + " gave order " + order.getId() + " to Chef");
+		
+		ServerComponent c = (ServerComponent) object.getComponent("Server");
+		c.order = null;
 		
 		//Return
 		return true;

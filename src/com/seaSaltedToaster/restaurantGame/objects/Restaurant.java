@@ -6,6 +6,7 @@ import java.util.Random;
 
 import com.seaSaltedToaster.restaurantGame.ai.PathfinderComponent;
 import com.seaSaltedToaster.restaurantGame.building.layers.BuildLayer;
+import com.seaSaltedToaster.restaurantGame.ground.Ground;
 import com.seaSaltedToaster.restaurantGame.objects.food.ItemOrder;
 import com.seaSaltedToaster.restaurantGame.objects.people.ChefComponent;
 import com.seaSaltedToaster.restaurantGame.objects.people.ServerComponent;
@@ -16,6 +17,11 @@ import com.seaSaltedToaster.simpleEngine.entity.Entity;
 
 public class Restaurant {
 	
+	//Static variables
+	public static int eatTime = 10;
+	public static int maxTableSize = 8;
+	public static float GET_ORDER_WAIT = 1;
+
 	//Customers
 	public List<TableComponent> tables;
 	public List<SeatComponent> chair;
@@ -30,10 +36,13 @@ public class Restaurant {
 	
 	//Layers
 	public List<BuildLayer> layers;
+	public Ground ground;
 	public PathfinderComponent cmp;
 	
 	//Money
 	public int money = 0;
+	public String name = "My Restaurant";
+	public boolean isOpen = false;
 	
 	//Locations
 	public Engine engine;
@@ -105,5 +114,16 @@ public class Restaurant {
 		}
 		return 0;
 	}
+
+//	public ItemOrder[] getAllTableOrder(ItemOrder order) {
+//		ItemOrder[] tOrders = new ItemOrder[maxTableSize];
+//		int i = 0;
+//		for(ItemOrder rOrder : orders) {
+//			if(rOrder.getTableId() == order.getTableId()) {
+//				tOrders[i] = rOrder; i++;
+//			}
+//		}
+//		return tOrders;
+//	}
 
 }

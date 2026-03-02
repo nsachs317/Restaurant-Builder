@@ -3,11 +3,11 @@ package com.seaSaltedToaster.simpleEngine.utilities;
 import com.seaSaltedToaster.simpleEngine.Engine;
 import com.seaSaltedToaster.simpleEngine.entity.Camera;
 import com.seaSaltedToaster.simpleEngine.entity.Transform;
-import com.seaSaltedToaster.simpleEngine.renderer.Window;
+import com.seaSaltedToaster.simpleEngine.renderer.window.Window;
 
 public class MatrixUtils {
 
-	public Matrix4f createTransformationMatrix(Transform transform) {
+	public static Matrix4f createTransformationMatrix(Transform transform) {
 		Matrix4f transformationMatrix = new Matrix4f();
 		transformationMatrix.setIdentity();
 		transformationMatrix = transformationMatrix.multiply(Matrix4f.translate(transform.getPosition().x, transform.getPosition().y, transform.getPosition().z));

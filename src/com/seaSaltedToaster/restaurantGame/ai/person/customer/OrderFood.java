@@ -2,11 +2,13 @@ package com.seaSaltedToaster.restaurantGame.ai.person.customer;
 
 import com.seaSaltedToaster.MainApp;
 import com.seaSaltedToaster.restaurantGame.ai.person.Action;
+import com.seaSaltedToaster.restaurantGame.ai.person.ActionComponent;
+import com.seaSaltedToaster.restaurantGame.ai.person.WaitAction;
 import com.seaSaltedToaster.restaurantGame.building.BuildingId;
+import com.seaSaltedToaster.restaurantGame.objects.Restaurant;
 import com.seaSaltedToaster.restaurantGame.objects.food.Food;
 import com.seaSaltedToaster.restaurantGame.objects.food.FoodRegistry;
 import com.seaSaltedToaster.restaurantGame.objects.food.ItemOrder;
-import com.seaSaltedToaster.restaurantGame.objects.food.PartyOrder;
 import com.seaSaltedToaster.restaurantGame.objects.seating.SeatComponent;
 import com.seaSaltedToaster.restaurantGame.save.SaveSystem;
 
@@ -28,17 +30,35 @@ public class OrderFood extends Action {
 
 	@Override
 	public boolean isDone() {
-		PartyOrder partyOrder = new PartyOrder();
 		PartySeating seating = (PartySeating) object.getComponent("PartySeating");
+		PartyLeader leader = (PartyLeader) object.getComponent("PartyLeader");
+			
+		//Party Leader Food
+		int memberCount = seating.getSeating().size();
+		Food[] food = new Food[memberCount];
+		for(int i = 0; i < memberCount; i++) {
+			food[i] = FoodRegistry.getRandom();
+			System.out.println("Food chosen for order for party " + leader.getEntity().getId() + " : " + food[i].name);
+		}
 		
-		//Party Leader
-		Food food = FoodRegistry.getRandom();
 		SeatComponent seat = seating.getSeating().get(object);
-		
+		if(seat == null) return false;
+			
 		ItemOrder order = new ItemOrder(seat.getTable(), seat, food);
-		partyOrder.add(seat, order);
+		
+		//Everybody else
+			
+		int id = ((BuildingId)leader.getTable().getEntity().getComponent("BuildingId")).getId();
+		order.setTableId(id);
+		
 		MainApp.restaurant.orders.add(order);
 		
+		//Add waiting option
+		ActionComponent mComp = (ActionComponent) object.getComponent("Action");
+		mComp.getActions().add(0, new WaitForOrderCustomer());
+		mComp.getActions().add(1, new WaitAction(Restaurant.eatTime));
+		mComp.getActions().add(2, new LeaveRestaurant(leader));
+				
 		//Return
 		return true;
 	}

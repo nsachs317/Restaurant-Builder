@@ -2,6 +2,8 @@ package com.seaSaltedToaster.restaurantGame.menus.mainMenu.savesMenu;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import com.seaSaltedToaster.MenuManager;
@@ -14,7 +16,7 @@ import com.seaSaltedToaster.restaurantGame.save.LoadSystem;
 import com.seaSaltedToaster.simpleEngine.Engine;
 import com.seaSaltedToaster.simpleEngine.input.Mouse;
 import com.seaSaltedToaster.simpleEngine.input.listeners.ScrollListener;
-import com.seaSaltedToaster.simpleEngine.renderer.Window;
+import com.seaSaltedToaster.simpleEngine.renderer.window.Window;
 import com.seaSaltedToaster.simpleEngine.uis.UiComponent;
 import com.seaSaltedToaster.simpleEngine.uis.constraints.UiConstraints;
 import com.seaSaltedToaster.simpleEngine.uis.constraints.XAlign;
@@ -107,6 +109,15 @@ public class SavesMenu implements ScrollListener {
 			addSave(child);
 		}		
 		this.scroll.setValue(0.0f);
+		
+		Collections.sort(buttons, new Comparator<SaveButton>() {
+	        public int compare(SaveButton o1, SaveButton o2) {
+	            return o1.timeSince - o2.timeSince;
+	        }
+	    });
+		
+		for(SaveButton button : buttons)
+			this.backer.addComponent(button);
 	}
 	
 	public void addSave(File child) {
@@ -116,7 +127,6 @@ public class SavesMenu implements ScrollListener {
 		btn.setInteractable(true, engine);
 		
 		this.buttons.add(btn);
-		this.backer.addComponent(btn);		
 	}
 
 	private void addBarItems(Engine engine) {

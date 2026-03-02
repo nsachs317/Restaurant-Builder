@@ -26,6 +26,8 @@ public class SeatComponent extends Component {
 		this.seatPosition = MathUtils.rotatePointAtCenter(origin.copy(), angleDeg);
 		this.seatPosition = this.seatPosition.add(entity.getPosition());
 		
+		//this.seatPosition = entity.getPosition().copy();
+		
 		this.facing = MathUtils.projectVertex(origin.copy(), 0.25f, angleDeg + 90);
 	}
 

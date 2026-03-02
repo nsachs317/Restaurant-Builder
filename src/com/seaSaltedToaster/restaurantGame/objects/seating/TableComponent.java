@@ -10,25 +10,73 @@ import com.seaSaltedToaster.restaurantGame.building.BuildingManager;
 import com.seaSaltedToaster.restaurantGame.building.BuildingType;
 import com.seaSaltedToaster.restaurantGame.building.layers.BuildLayer;
 import com.seaSaltedToaster.restaurantGame.building.layers.PlacementListener;
+import com.seaSaltedToaster.restaurantGame.objects.food.Food;
 import com.seaSaltedToaster.simpleEngine.entity.Entity;
 import com.seaSaltedToaster.simpleEngine.entity.componentArchitecture.Component;
+import com.seaSaltedToaster.simpleEngine.entity.componentArchitecture.ModelComponent;
+import com.seaSaltedToaster.simpleEngine.utilities.MathUtils;
 import com.seaSaltedToaster.simpleEngine.utilities.Vector3f;
 
 public class TableComponent extends Component implements PlacementListener {
 		
 	//Constants
-	private static int MAX_DIST = 1;
+	private static float MAX_DIST = 1, HEIGHT = 0.4f, dx = 0.2f, dz = 0.125f;
 	
 	//Claim state
-	private boolean isTaken = false;
+	private boolean isTaken = false, checkedSelf = false;
 	private int capacity = 0;
 	
 	//Chairs
 	private Entity tablePartyLeader;
 	private List<SeatComponent> chairs;
 	
+	//Food on table
+	public List<Entity> foodItems;
+	public boolean hasFood = false;
+	
 	public TableComponent() {
 		this.chairs = new ArrayList<SeatComponent>();
+	}
+
+	private void addFoodPlaceholders() {
+		this.foodItems = new ArrayList<Entity>();
+		float x = this.getEntity().getPosition().x;
+		float z = this.getEntity().getPosition().z;
+
+		this.foodItems.add(new Entity(addSpot(x + dx, z + dz)));
+		this.foodItems.add(new Entity(addSpot(x + dx, z - dz)));
+		this.foodItems.add(new Entity(addSpot(x - dx, z + dz)));
+		this.foodItems.add(new Entity(addSpot(x - dx, z - dz)));
+		
+		for(Entity item : foodItems) {
+			MainApp.restaurant.engine.addEntity(item);
+			
+			ModelComponent comp = new ModelComponent(null);
+			item.addComponent(comp);
+		}
+		setFoodItem(null);
+	}
+	
+	private Vector3f addSpot(float x, float z) {
+		float angleDeg = -entity.getTransform().getRotation().y;
+		Vector3f foodPosition = MathUtils.rotatePoint(new Vector3f(x, HEIGHT, z), entity.getPosition(), angleDeg);
+		return foodPosition;
+	}
+	
+	public void setFoodItem(Food[] food) {	
+		for(int i = 0; i < foodItems.size(); i++) {		
+			Entity item = foodItems.get(i);
+			ModelComponent comp = (ModelComponent) item.getComponent("Model");
+			
+			if(food != null && i < food.length && food[i] != null) {
+				comp.setMesh(food[i].getVao());
+				hasFood = true;				
+			}
+			if(food == null) {
+				comp.setMesh(null);
+				hasFood = false;
+			}
+		}
 	}
 
 	@Override
@@ -36,9 +84,10 @@ public class TableComponent extends Component implements PlacementListener {
 		MainApp.restaurant.tables.add(this);
 		BuildingManager.listeners.add(this);
 		checkExisting();
+		addFoodPlaceholders();
 	}
 	
-	private void checkExisting() {
+	public void checkExisting() {
 		BuildLayer layer = ((BuildingId) entity.getComponent("BuildingId")).getLayer();
 		for(Entity entity : layer.getBuildings()) {
 			if(entity == null || !entity.hasComponent("BuildingId")) continue;
@@ -58,12 +107,16 @@ public class TableComponent extends Component implements PlacementListener {
 			if(dist <= MAX_DIST) 
 			{
 				SeatComponent component = (SeatComponent) obj.getComponent("Chair");
+				if(component.getTable() != null) return;
+				
 				int dot = (int) Math.toDegrees(Vector3f.angle(toChair, component.facing));
 				if(dot != 179 && dot != 180 && dot != 149 && dot != 150) return;
 				
 				component.setTable(this);
 				this.chairs.add(component);
 				this.capacity++;
+				if(chairs.size() == 1)
+					System.out.println("made table");
 			}
 		}
 	}
@@ -98,7 +151,19 @@ public class TableComponent extends Component implements PlacementListener {
 
 	@Override
 	public void update() {
-		
+		if(!checkedSelf) {
+			for(Component componentA : this.getEntity().getComponents()) {
+				if(componentA.getComponentType() == "Chair") {
+					SeatComponent component = (SeatComponent) componentA;
+					component.setTable(this);
+					this.chairs.add(component);
+					this.capacity++;
+					if(component.isTaken())
+						this.isTaken = true;
+				}
+			}
+			checkedSelf = true;
+		}
 	}
 
 	@Override
@@ -118,7 +183,8 @@ public class TableComponent extends Component implements PlacementListener {
 
 	@Override
 	public Component copyInstance() {
-		return new TableComponent();
+		TableComponent tbl = new TableComponent();
+		return tbl;
 	}
 
 }

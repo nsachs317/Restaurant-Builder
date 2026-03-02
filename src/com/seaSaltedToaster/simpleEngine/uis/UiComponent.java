@@ -9,7 +9,7 @@ import com.seaSaltedToaster.simpleEngine.input.listeners.MouseEventData;
 import com.seaSaltedToaster.simpleEngine.input.listeners.MouseListener;
 import com.seaSaltedToaster.simpleEngine.input.listeners.MousePosData;
 import com.seaSaltedToaster.simpleEngine.input.listeners.MousePosListener;
-import com.seaSaltedToaster.simpleEngine.renderer.Window;
+import com.seaSaltedToaster.simpleEngine.renderer.window.Window;
 import com.seaSaltedToaster.simpleEngine.uis.animations.UiAnimator;
 import com.seaSaltedToaster.simpleEngine.uis.constraints.UiConstraints;
 import com.seaSaltedToaster.simpleEngine.utilities.Vector2f;
@@ -166,6 +166,8 @@ public class UiComponent implements MouseListener, MousePosListener {
 		
 	}
 	
+	float cx, cy, cw, ch;
+	
 	public void setClippingBounds() {
 		float x = position.x - (scale.x / 2);
 		float y = position.y - (scale.y / 2);
@@ -187,26 +189,22 @@ public class UiComponent implements MouseListener, MousePosListener {
 	
 
 	public void setClippingBounds(float x, float y, float width, float height) {
+		cx = x; cy = y; cw = width; ch = height;
+		
 	    int xPixels = (int) Math.round(x * Window.getWidth());
 	    int yPixels = (int) (Window.getHeight() - Math.round((y + height) * Window.getHeight()));
 	    int widthPixels = (int) Math.round(width * Window.getWidth());
 	    int heightPixels = (int) Math.round(height * Window.getHeight());
-	    if (this.clippingBounds == null) {
-	      int[] bounds = { xPixels, yPixels, widthPixels, heightPixels };
-	      setChildrenClippingBounds(bounds);
-	    } else {
-	      this.clippingBounds[0] = xPixels;
-	      this.clippingBounds[1] = yPixels;
-	      this.clippingBounds[2] = widthPixels;
-	      this.clippingBounds[3] = heightPixels;
-	    } 
-	  }
+	    
+	    int[] bounds = { xPixels, yPixels, widthPixels, heightPixels };
+	    setChildrenClippingBounds(bounds);
+	}
 	
-	private void setChildrenClippingBounds(int[] bounds) {
+	public void setChildrenClippingBounds(int[] bounds) {
 	    this.clippingBounds = bounds;
 	    for (UiComponent child : children)
 	      child.setChildrenClippingBounds(this.clippingBounds); 
-	  }
+	}
 	
 	public int[] getClippingBounds() {
 		return clippingBounds;

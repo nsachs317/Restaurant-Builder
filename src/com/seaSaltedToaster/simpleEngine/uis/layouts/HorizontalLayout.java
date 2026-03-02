@@ -29,5 +29,21 @@ public class HorizontalLayout extends UiLayout {
 	private boolean hasExistingConstraints(UiComponent child) {
 		return (child.getConstraints().getXConstraint() != null || !child.getConstraints().applyLayout); 
 	}
+
+	public float getEdgeSpace() {
+		return edgeSpace;
+	}
+
+	public void setEdgeSpace(float edgeSpace) {
+		this.edgeSpace = edgeSpace;
+	}
+
+	public float getComponentSpace() {
+		return componentSpace;
+	}
+
+	public void setComponentSpace(float componentSpace) {
+		this.componentSpace = componentSpace;
+	}
 	
 }

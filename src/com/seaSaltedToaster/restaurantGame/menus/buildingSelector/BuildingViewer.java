@@ -1,6 +1,7 @@
 package com.seaSaltedToaster.restaurantGame.menus.buildingSelector;
 
 import com.seaSaltedToaster.MainApp;
+import com.seaSaltedToaster.restaurantGame.ai.person.ActionComponent;
 import com.seaSaltedToaster.restaurantGame.building.BuildingId;
 import com.seaSaltedToaster.restaurantGame.menus.buildingSelector.colorPicker.ColorPicker;
 import com.seaSaltedToaster.restaurantGame.menus.buildingSelector.subMenus.ColorButton;
@@ -8,9 +9,10 @@ import com.seaSaltedToaster.restaurantGame.menus.buildingSelector.subMenus.Color
 import com.seaSaltedToaster.restaurantGame.menus.buildingSelector.subMenus.DeleteButton;
 import com.seaSaltedToaster.restaurantGame.menus.buildingSelector.subMenus.InfoButton;
 import com.seaSaltedToaster.restaurantGame.menus.buildingSelector.subMenus.ValueDisplay;
+import com.seaSaltedToaster.restaurantGame.objects.people.ServerComponent;
 import com.seaSaltedToaster.simpleEngine.Engine;
 import com.seaSaltedToaster.simpleEngine.entity.Entity;
-import com.seaSaltedToaster.simpleEngine.renderer.Window;
+import com.seaSaltedToaster.simpleEngine.renderer.window.Window;
 import com.seaSaltedToaster.simpleEngine.uis.UiComponent;
 import com.seaSaltedToaster.simpleEngine.uis.constraints.UiConstraints;
 import com.seaSaltedToaster.simpleEngine.uis.constraints.XAlign;
@@ -40,7 +42,10 @@ public class BuildingViewer extends UiComponent {
 	
 	//Info panel
 	private UiComponent infoPanel;
-	private ValueDisplay name, cost;
+	private ValueDisplay name, cost, id;
+	
+	//Conditional
+	private ValueDisplay display;
 	
 	//Color change panel
 	private UiComponent colorPanel;
@@ -119,6 +124,24 @@ public class BuildingViewer extends UiComponent {
 		
 		this.name.setText("Name", id.getType().name);
 		this.cost.setText("Cost", "$" + id.getType().getPrice());
+		this.id.setText("ID", ""+id.getId());
+		
+		if(currentObject.hasComponent("Server")) {
+			ServerComponent c = (ServerComponent) currentObject.getComponent("Server");
+			ActionComponent a = (ActionComponent) currentObject.getComponent("Action");
+			
+			if(display != null) {
+			} else {	
+				this.display = new ValueDisplay();
+				this.infoPanel.addComponent(display);
+			}
+			this.display.setText("Status", a.getCurAction().toString());
+			this.name.setText("Name", c.getName());
+			
+		} else {
+			this.infoPanel.removeComponent(display);
+			this.display = null;
+		}
 		
 		this.primary.setColor(id.getPrimary());
 		this.secondary.setColor(id.getSecondary());
@@ -139,7 +162,7 @@ public class BuildingViewer extends UiComponent {
 		//Color
 		this.setColor(0.2f);
 		
-		//Size (and the shape? foo fighters reference?!?!)
+		//Size
 		UiConstraints cons = this.getConstraints();
 		cons.setWidth(new RelativeScale(0.2f));
 		cons.setHeight(new AspectRatio(0.6f));
@@ -173,6 +196,9 @@ public class BuildingViewer extends UiComponent {
 		
 		this.cost = new ValueDisplay();
 		this.infoPanel.addComponent(cost);
+		
+		this.id = new ValueDisplay();
+		this.infoPanel.addComponent(id);
 		
 		//Color panel
 		this.colorPanel = new UiComponent(7);

@@ -27,7 +27,7 @@ public class Building {
 	public boolean isWall = false, isFloor = false, isObstructive = false, isTable = false, walkThrough = false, show = true;
 	private float iconZoom = 1f;
 	private int price = 0;
-	public String name;
+	public String name, modelPath;
 	public Vao model;
 
 	public Building(Entity entity, boolean isWall, boolean isFloor, BuildingType type) {

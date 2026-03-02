@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.seaSaltedToaster.Scene;
+import com.seaSaltedToaster.restaurantGame.tools.Reporter;
 import com.seaSaltedToaster.simpleEngine.entity.Camera;
 import com.seaSaltedToaster.simpleEngine.entity.Entity;
 import com.seaSaltedToaster.simpleEngine.input.Keyboard;
@@ -12,10 +13,10 @@ import com.seaSaltedToaster.simpleEngine.models.VaoLoader;
 import com.seaSaltedToaster.simpleEngine.models.texture.TextureLoader;
 import com.seaSaltedToaster.simpleEngine.models.wavefront.ObjLoader;
 import com.seaSaltedToaster.simpleEngine.renderer.AdvancedRenderer;
-import com.seaSaltedToaster.simpleEngine.renderer.Window;
 import com.seaSaltedToaster.simpleEngine.renderer.lighting.Light;
 import com.seaSaltedToaster.simpleEngine.renderer.postProcessing.PostProcessor;
 import com.seaSaltedToaster.simpleEngine.renderer.shadows.ShadowMapRenderer;
+import com.seaSaltedToaster.simpleEngine.renderer.window.Window;
 import com.seaSaltedToaster.simpleEngine.uis.UiComponent;
 import com.seaSaltedToaster.simpleEngine.uis.rendering.UiRenderer;
 import com.seaSaltedToaster.simpleEngine.uis.text.rendering.FontRenderer;
@@ -163,7 +164,9 @@ public class Engine {
 	}
 	
 	public void update() {
+		Reporter.report("Update Camera");
 		this.camera.update();
+		Reporter.report("Update Window");
 		this.window.updateWindow();
 	}
 	

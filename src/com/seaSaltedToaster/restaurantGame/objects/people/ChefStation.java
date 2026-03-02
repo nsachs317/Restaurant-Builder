@@ -18,7 +18,7 @@ public class ChefStation extends Component {
 	private Entity owner;
 	
 	//Cook data
-	private int spotCount = 3;
+	private int spotCount = 5;
 	private Entity[] foodDisplays;
 	private Vector3f[] spots;
 	
@@ -30,11 +30,13 @@ public class ChefStation extends Component {
 	@Override
 	public void init() {
 		float shelfHeight = 0.7f;
-		float plateDist = 0.33f;
-		float plateDistFromChef = -0.35f;
+		float plateDist = 0.2f;
+		float plateDistFromChef = 0.f;
 		this.spots[0] = new Vector3f(plateDistFromChef, shelfHeight, 0);
 		this.spots[1] = new Vector3f(plateDistFromChef, shelfHeight, -plateDist);
 		this.spots[2] = new Vector3f(plateDistFromChef, shelfHeight, plateDist);
+		this.spots[3] = new Vector3f(plateDistFromChef, shelfHeight, -plateDist*2);
+		this.spots[4] = new Vector3f(plateDistFromChef, shelfHeight, plateDist*2);
 		
 		for(int i = 0; i < spotCount; i++) {
 			Entity entity = new Entity();
@@ -66,7 +68,7 @@ public class ChefStation extends Component {
 
 	@Override
 	public void update() {
-		if(!isOccupied) return;
+		//if(!isOccupied) return;
 		
 		List<ItemOrder> orders = MainApp.restaurant.chefOrders;
 		int index = -1;
@@ -75,15 +77,15 @@ public class ChefStation extends Component {
 			comp.setMesh(null);
 		}
 		for(ItemOrder order : orders) {
-			if(order.getChefWhoCooked() != owner) continue;
-			index++;
-			if(!order.isCooked()) {
+			if(order == null)
 				continue;
-			}
+			//if(order.getChefWhoCooked() != owner) continue;
+			index++;
 			if(index < spotCount) {
 				ModelComponent comp = (ModelComponent) foodDisplays[index].getComponent("Model");
-				if(order.isCooked() && !order.isDelivered())
-					comp.setMesh(order.getFoodItem().getVao());
+				if(order.isCooked() && !order.isDelivered() && order.getFoodItem() != null) {
+					comp.setMesh(order.getFoodItem()[0].getVao());
+				}
 				else
 					comp.setMesh(null);
 			}
@@ -97,7 +99,7 @@ public class ChefStation extends Component {
 	public void setOccupied(boolean isOccupied) {
 		this.isOccupied = isOccupied;
 	}
-
+	
 	public Entity getOwner() {
 		return owner;
 	}

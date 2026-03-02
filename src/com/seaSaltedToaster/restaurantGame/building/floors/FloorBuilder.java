@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.seaSaltedToaster.MainApp;
 import com.seaSaltedToaster.restaurantGame.building.Building;
+import com.seaSaltedToaster.restaurantGame.building.BuildingId;
 import com.seaSaltedToaster.restaurantGame.building.BuildingManager;
 import com.seaSaltedToaster.restaurantGame.building.categories.BuildingList;
 import com.seaSaltedToaster.restaurantGame.objects.FloorComponent;
@@ -17,6 +18,7 @@ public class FloorBuilder {
 	//Other
 	private Vector3f reset = new Vector3f(-Integer.MAX_VALUE/2);
 	private Entity preview;
+	private Building curType;
 	private int maxPoints = 5;
 	
 	//Placement settings
@@ -59,18 +61,25 @@ public class FloorBuilder {
 		
 		int index = 0;
 		for(Vector3f point : points) {
-			if(point == null) {
+			if(point == null && BuildingManager.isBuilding) {
 				points.add(corner);
 				previews.get(index).setPosition(corner);
 				
 				Restaurant rest = MainApp.restaurant;
 				int layer = BuildingManager.curLayer;
 				rest.layers.get(layer).getBuildings().remove(preview);
-				this.preview = this.getMeshBuilder().buildFloor(points, floorComp, false);
+				this.preview = this.getMeshBuilder().buildFloor(points, floorComp, false, true);
 				rest.layers.get(layer).getBuildings().add(preview);
 				
 				points.set(index, null);
 				
+				if(preview != null) {
+					BuildingId id = (BuildingId) preview.getComponent("BuildingId");
+					if(id == null) 
+						preview.addComponent(new BuildingId(-1, curType, null)); id = (BuildingId) preview.getComponent("BuildingId");
+					id.setPrimary(curType.getDefPrimary());
+					id.setSecondary(curType.getDefSecondary());
+				}
 			}
 			index++;
 		}
@@ -85,7 +94,7 @@ public class FloorBuilder {
 	}
 	
 	public void place() {		
-		Entity placement = this.meshBuilder.buildFloor(points, floorComp, true);
+		Entity placement = this.meshBuilder.buildFloor(points, floorComp, true, true);
 		if(placement != null)
 			this.resetEndpoints();
 	}
@@ -102,6 +111,7 @@ public class FloorBuilder {
 	}
 	
 	public void setBuilding(Building type) {
+		this.curType = type;
 		this.floorComp = (FloorComponent) type.getComponent("Floor");
 	}
 	

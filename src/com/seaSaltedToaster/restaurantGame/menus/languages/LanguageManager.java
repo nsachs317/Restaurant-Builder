@@ -38,7 +38,7 @@ public class LanguageManager {
 			String id = textEntry.getKey();
 			setTextToCurrentLanguage(id, text, new Object[0]);
 		}
-		System.out.println("Set game language to " + languageText);
+		System.out.println("Set game language to : " + languageText);
 	}
 	
 	
@@ -69,21 +69,34 @@ public class LanguageManager {
 		for(Entry<String, LangTerm> langEntry : currentLanguage.getLanguageList().entrySet()) {
 			if(langEntry.getKey().equals(id)) {
 				
-				String langVal = new String(langEntry.getValue().getTerm().trim());
+				//Get text in language
+				String langVal = new String(langEntry.getValue().getTerm().trim().toString());
+				
+				//Check replacement
+				String value = langVal;
 				for(int i = 0; i < objects.length; i++)
 				{
-					String key = "(val" + (i+1) + ")";
+					String key = ("val" + (i+1));
 					if(langVal.contains(key)) 
 					{
-						langVal.replace(key.trim(), "1");
-						System.out.println(key + " : " + langVal);
+						value = value.replaceAll(key, objects[i].toString());
+					}
+					
+					if(i+1 == objects.length) {
+						text.setTextString(value);
+						//System.out.println(langVal);
+						
+						return;
 					}
 				}
+				
+				//Set text
 				text.setTextString(langVal);
 				
 				return;
 			}
 		}
+		
 		//No match found
 		System.out.println("No translation match in " + currentLanguage.getName() + " found for : " + id);
 	}

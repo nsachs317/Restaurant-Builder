@@ -8,10 +8,14 @@ import java.text.CharacterIterator;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.text.StringCharacterIterator;
+import java.util.Calendar;
+import java.util.Date;
 
 import com.seaSaltedToaster.MainApp;
+import com.seaSaltedToaster.restaurantGame.audio.AudioTracks;
 import com.seaSaltedToaster.restaurantGame.menus.mainMenu.MenuSettings;
-import com.seaSaltedToaster.simpleEngine.renderer.Window;
+import com.seaSaltedToaster.simpleEngine.audio.AudioSource;
+import com.seaSaltedToaster.simpleEngine.renderer.window.Window;
 import com.seaSaltedToaster.simpleEngine.uis.UiComponent;
 import com.seaSaltedToaster.simpleEngine.uis.constraints.UiConstraints;
 import com.seaSaltedToaster.simpleEngine.uis.constraints.XAlign;
@@ -29,6 +33,8 @@ public class SaveButton extends UiComponent {
 	private SavesMenu savesMenu;
 	private UiComponent icon;
 	private Text name, lastPlayed, size;
+	private AudioSource source;
+	public int timeSince = 999;
 	
 	//Animation
 	private SmoothFloat hovScale;
@@ -36,6 +42,7 @@ public class SaveButton extends UiComponent {
 	public SaveButton(File child, int icon, SavesMenu savesMenu) {
 		super(1);
 		this.savesMenu = savesMenu;
+		this.source = new AudioSource();
 		
 		FileTime time = null;
 		try {
@@ -44,6 +51,7 @@ public class SaveButton extends UiComponent {
 			e.printStackTrace();
 		}
 		DateFormat df = new SimpleDateFormat("MM/dd/yy HH:mm");
+		timeSince = SaveButton.daysOld(child);
 		
 		createPanel();
 		addDetails(child.getName(), df.format(time.toMillis()), humanReadableByteCountBin(getFileSize(child)) + " bytes");
@@ -91,11 +99,13 @@ public class SaveButton extends UiComponent {
 		
 		this.savesMenu.slide(false);
 		this.savesMenu.getManager().getLoadingScreen().slide(true);
+		source.Play(AudioTracks.BUTTON_CLICK);
 	}
 	
 	@Override
 	public void onHover() {
 		this.hovScale.setTarget(1.075f);
+		source.Play(AudioTracks.BUTTON_HOVER);
 	}
 	
 	@Override
@@ -164,4 +174,15 @@ public class SaveButton extends UiComponent {
 		this.hovScale.setValue(0.0f);
 		this.hovScale.setTarget(1.0f);
 	}
+	
+	public static int daysOld(File file) {
+        if (file.lastModified() < 1)
+            return 0;
+        return milliToDay(Calendar.getInstance().getTimeInMillis() - file.lastModified());
+    }
+	
+    public static int milliToDay(long milli) {
+        return (int) ((double) milli / (24 * 60));
+    }
+    
 }

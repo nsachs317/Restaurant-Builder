@@ -7,7 +7,7 @@ import com.seaSaltedToaster.simpleEngine.Engine;
 import com.seaSaltedToaster.simpleEngine.models.Vao;
 import com.seaSaltedToaster.simpleEngine.renderer.Fbo;
 import com.seaSaltedToaster.simpleEngine.renderer.Renderer;
-import com.seaSaltedToaster.simpleEngine.renderer.Window;
+import com.seaSaltedToaster.simpleEngine.renderer.window.Window;
 import com.seaSaltedToaster.simpleEngine.utilities.OpenGL;
 import com.seaSaltedToaster.simpleEngine.utilities.skybox.TimeHandler;
 

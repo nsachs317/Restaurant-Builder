@@ -1,3 +1,4 @@
+#version 130
 
 in vec3 pass_color;
 
@@ -7,6 +8,6 @@ uniform vec3 objColor;
 
 void main(void)	{
 
-	out_Color = vec4(objColor, 0.0f);
+	out_Color = vec4(objColor, 1.0f);
 
 }

@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import com.seaSaltedToaster.MainApp;
 import com.seaSaltedToaster.restaurantGame.WorldCamera;
 import com.seaSaltedToaster.restaurantGame.building.Building;
 import com.seaSaltedToaster.restaurantGame.building.BuildingId;
@@ -15,10 +16,13 @@ import com.seaSaltedToaster.restaurantGame.objects.FloorComponent;
 import com.seaSaltedToaster.restaurantGame.objects.Restaurant;
 import com.seaSaltedToaster.restaurantGame.objects.WallComponent;
 import com.seaSaltedToaster.restaurantGame.objects.food.ItemOrder;
+import com.seaSaltedToaster.restaurantGame.objects.people.ChefComponent;
+import com.seaSaltedToaster.restaurantGame.objects.people.ServerComponent;
 import com.seaSaltedToaster.simpleEngine.entity.Camera;
 import com.seaSaltedToaster.simpleEngine.entity.Entity;
 import com.seaSaltedToaster.simpleEngine.utilities.ScreenshotUtils;
 import com.seaSaltedToaster.simpleEngine.utilities.Vector3f;
+import com.seaSaltedToaster.simpleEngine.utilities.skybox.TimeHandler;
 
 public class SaveSystem {
 	
@@ -122,14 +126,62 @@ public class SaveSystem {
 		File bldFile = new File(cur.getAbsolutePath() + "/buildings.rf");
 		saveBuildings(manager, bldFile);
 		
+		//Save employees
+		File employeeFile = new File(cur.getAbsolutePath() + "/employees.rf");
+		saveEmployees(MainApp.restaurant, employeeFile);
+		
 		//Take icon shot
 		File scrn = new File(cur.getAbsolutePath() + "/icon.png");
 		ScreenshotUtils.screenshot(scrn, 750, 750);
+		
+		//Save Info
+		File infoFile = new File(cur.getAbsolutePath() + "/info.rf");
+		saveInfo(timeDisplay, MainApp.restaurant.money, infoFile);
 		
 		//Save ground
 		SaveSystem.setGroundType(curSave, ground.groundType);
 	}
 	
+	private void saveEmployees(Restaurant restaurant, File employeeFile) {
+		try {
+			employeeFile.createNewFile();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		//Chefs First
+		for(ChefComponent chef : restaurant.chefs) {
+			BuildingId id = (BuildingId) chef.getEntity().getComponent("BuildingId");
+			
+			int chefId = id.getId();
+			String name = chef.getName();
+			float progress = chef.getProgress();
+			float level = chef.getLevel();
+			float wage = chef.getWage();
+			String data = chefId + "," + name + "," + progress + "," + level + "," + wage + ";" + "\n";
+			writeToFile(employeeFile, data, false);
+		}
+		
+		//Servers
+		for(ServerComponent server : restaurant.servers) {
+			BuildingId id = (BuildingId) server.getEntity().getComponent("BuildingId");
+			
+			int serverId = id.getId();
+			String name = server.getName();
+			float progress = server.getProgress();
+			float level = server.getLevel();
+			float wage = server.getWage();
+			String data = serverId + "," + name + "," + progress + "," + level + "," + wage + ";" + "\n";
+			writeToFile(employeeFile, data, false);
+		}
+		
+		try {
+			writer.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
 	public void saveBuildings(BuildingManager manager, File buildingsFile) {
 		//Create file
 		try {
@@ -193,8 +245,22 @@ public class SaveSystem {
 		writeToFile(buildingsFile, id.getPrimary().toString().replace(" ", "") + ";" + id.getSecondary().toString().replace(" ", "") + ";", false);
 	}
 
-	public void saveTime(TimeDisplay timeDisplay, File timeFile) {
+	public void saveInfo(TimeDisplay timeDisplay, int money, File infoFile) {
+		//Create file
+		try {
+			infoFile.createNewFile();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		
+		//Write to the file (min, hour, day, money)
+		writeToFile(infoFile, TimeHandler.minute + "," + TimeHandler.hour + "," + TimeHandler.dayNumber + "," + money + "," + MainApp.restaurant.name + "," + MainApp.restaurant.isOpen, true);
+		
+		try {
+			writer.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	private void saveCamera(Camera camera, File camFile) {

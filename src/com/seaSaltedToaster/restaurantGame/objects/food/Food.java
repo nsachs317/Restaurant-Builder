@@ -12,6 +12,7 @@ public class Food {
 	private int cookTime = 10;
 	private int eatingTime = 15;
 	private int price = 25;
+	public String name;
 
 	public Food(Vao vao, int id) {
 		this.vao = vao;

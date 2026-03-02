@@ -100,7 +100,7 @@ public class MathUtils {
 		 float side1 = a.copy().subtract(b.copy()).length();
 		 float side2 = b.copy().subtract(c.copy()).length();
 		 float side3 = c.copy().subtract(a.copy()).length();
-		 System.out.println(side1 + " : " + side2 + " : " + side3 + " : " + (side1 * Math.sqrt(2)));
+		 //System.out.println(side1 + " : " + side2 + " : " + side3 + " : " + (side1 * Math.sqrt(2)));
 		 
 		 if(side1 == side2 && side3 - (Math.sqrt(2) * side1) < 0.01f) 
 			 return true;

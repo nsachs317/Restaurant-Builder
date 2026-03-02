@@ -1,0 +1,11 @@
+name=Striped Floor
+type=Floor
+price=10
+iconZoom=0.66
+category=Building
+model=basic/floor/stripeFloor
+primary=0.375,0.375,0.375
+secondary=0,0,0
+components{
+
+}

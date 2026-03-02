@@ -45,6 +45,22 @@ public class ObjLoader {
 		return vao;
 	}
 	
+	public ObjData getModelData(String file) {
+		//Opening and extract contents of file
+		List<String>  objFile = openModelFile(file);
+		
+		//Extracting Material Data from Opened File
+		List<ObjMaterial> objMaterials = getMaterials(objFile, file);
+		
+		//Extracting Data from Opened File
+		List<Vector3f> positions = getVertexPositions(objFile);
+		List<Vector3f> normals = getVertexNormals(objFile);
+		
+		//Sort faces and materials
+		ObjData data = sortModelData(positions, normals, objMaterials, objFile);
+		return data;
+	}
+	
 	private ObjData sortModelData(List<Vector3f> positions, List<Vector3f> normals, List<ObjMaterial> objMaterials, List<String> objFile) {
 		//List of Colors
 		List<Integer> indices = new ArrayList<Integer>();
@@ -190,6 +206,7 @@ public class ObjLoader {
 
 	private List<String>  openModelFile(String file) {
 		//Open file
+		System.out.println("Loading OBJ model : " + file);
 		isr = new InputStreamReader(ObjLoader.class.getResourceAsStream("/" + file + ".obj"));
 		bufferedReader = new BufferedReader(isr);
 		

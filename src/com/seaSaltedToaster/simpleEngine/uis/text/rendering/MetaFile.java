@@ -6,8 +6,8 @@ import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.seaSaltedToaster.simpleEngine.renderer.window.Window;
 import com.seaSaltedToaster.simpleEngine.uis.text.Character;
-import com.seaSaltedToaster.simpleEngine.renderer.Window;
 
 public class MetaFile {
 

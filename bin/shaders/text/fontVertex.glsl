@@ -1,3 +1,4 @@
+#version 130
 
 const float lineHeight = 0.0f;
 

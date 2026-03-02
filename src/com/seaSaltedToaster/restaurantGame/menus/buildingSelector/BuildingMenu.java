@@ -1,5 +1,6 @@
 package com.seaSaltedToaster.restaurantGame.menus.buildingSelector;
 
+import com.seaSaltedToaster.ClientConfigs;
 import com.seaSaltedToaster.MainApp;
 import com.seaSaltedToaster.restaurantGame.building.Building;
 import com.seaSaltedToaster.restaurantGame.building.BuildingManager;
@@ -8,7 +9,9 @@ import com.seaSaltedToaster.restaurantGame.building.categories.BuildingList;
 import com.seaSaltedToaster.restaurantGame.menus.iconMaker.IconMaker;
 import com.seaSaltedToaster.restaurantGame.tools.ColorPalette;
 import com.seaSaltedToaster.simpleEngine.Engine;
-import com.seaSaltedToaster.simpleEngine.renderer.Window;
+import com.seaSaltedToaster.simpleEngine.input.listeners.ScrollListener;
+import com.seaSaltedToaster.simpleEngine.renderer.window.Window;
+import com.seaSaltedToaster.simpleEngine.renderer.window.WindowListener;
 import com.seaSaltedToaster.simpleEngine.uis.UiComponent;
 import com.seaSaltedToaster.simpleEngine.uis.constraints.XAlign;
 import com.seaSaltedToaster.simpleEngine.uis.constraints.UiConstraints;
@@ -20,7 +23,7 @@ import com.seaSaltedToaster.simpleEngine.uis.layouts.HorizontalLayout;
 import com.seaSaltedToaster.simpleEngine.uis.text.Text;
 import com.seaSaltedToaster.simpleEngine.utilities.SmoothFloat;
 
-public class BuildingMenu extends UiComponent {
+public class BuildingMenu extends UiComponent implements WindowListener, ScrollListener {
 
 	//Building
 	private BuildingManager manager;
@@ -30,9 +33,13 @@ public class BuildingMenu extends UiComponent {
 	private SmoothFloat yValue;
 	private boolean isOpen = false;
 	
+	//Scrolling
+	private SmoothFloat scroll;
+	private float scrollAmt = 0.25f;
+	
 	//Objects
 	public static IconMaker iconMaker;
-	private UiComponent[] buttons;
+	private BuildingItem[] buttons;
 	
 	//Backing
 	private UiComponent categoryBacking;
@@ -54,6 +61,9 @@ public class BuildingMenu extends UiComponent {
 		addCategoryName(curCategory, engine);
 		this.setInteractable(true, engine);
 		this.tooltip = new ItemTooltip(this, engine);
+		engine.getMouse().addScrollListener(this);
+		
+		this.notifyResize((int)Window.width,(int)Window.height);
 	}
 	
 	@Override
@@ -62,6 +72,38 @@ public class BuildingMenu extends UiComponent {
 		float newY = yValue.getValue();
 		AlignY align = (AlignY) this.getConstraints().getYConstraint();
 		align.setGap(newY);
+		
+		updateScrollCap();
+	}
+	
+	private void updateScrollCap() {
+		scroll.update(Window.DeltaTime);
+		HorizontalLayout layout = (HorizontalLayout) this.getConstraints().getLayout();
+		layout.setEdgeSpace(scroll.getValue());
+		
+		if(scroll.getValue() > 0)
+			this.scroll.setTarget(0.0f);
+		
+		float spacing = this.getScale().x * layout.getComponentSpace();
+		float extraSpace = spacing;
+		for(BuildingItem item : buttons) {
+			if(item == null) continue;
+			extraSpace += item.getScale().x + (spacing*this.getScale().x);
+		}
+		extraSpace += spacing;
+		extraSpace -= this.getScale().x;
+		extraSpace *= -1;
+
+		if(scroll.getValue() < extraSpace)
+			scroll.setTarget(extraSpace);
+		if(extraSpace > 0)
+			scroll.setTarget(0.0f);
+	}
+
+	@Override
+	public void notifyScrollChanged(float scrollValue) {
+		if(!this.isOpen || !this.isHovering) return;
+		this.scroll.increaseTarget(scrollValue / 15.0f);
 	}
 	
 	@Override
@@ -74,10 +116,12 @@ public class BuildingMenu extends UiComponent {
 				if(isBuilding) {
 					Building build = curCategory.getChildBuildings().get(index - curCategory.getChildCategories().size());
 					manager.setCurrentBuilding(build);
+					this.notifyResize((int)Window.width,(int)Window.height);
 				} else {
 					BuildingCategory newCategory = curCategory.getChildCategories().get(index);
 					clearButtons();
 					createButtons(engine, newCategory);
+					this.notifyResize((int)Window.width,(int)Window.height);
 				}
 				return;
 			}
@@ -115,7 +159,19 @@ public class BuildingMenu extends UiComponent {
 		}
 	}
 	
+
+	@Override
+	public void notifyResize(int x, int y) {
+		this.setClippingBounds(0.125f, 0, 0.75f, 1.0f);	
+		for(BuildingItem button : buttons) {
+			if(button == null) continue;
+			button.setClippingBounds(0.125f, 0, 0.75f, 1.0f);
+			button.getIconComp().setClippingBounds(0.125f, 0.0f, 0.75f, 1.0f);
+		}
+	}
+	
 	public void show() {
+		this.notifyResize((int)Window.width,(int)Window.height);
 		this.tooltip.close();
 		
 		if(curCategory != BuildingList.getRoot() && isHovering()) {
@@ -160,13 +216,15 @@ public class BuildingMenu extends UiComponent {
 	private void createButtons(Engine engine, BuildingCategory category) {
 		this.curCategory = category;
 		int count = category.getChildCategories().size() + category.getChildBuildings().size();
-		this.buttons = new UiComponent[32];
+		this.buttons = new BuildingItem[32];
 		for(int i = 0; i < count; i++) {
 			boolean isBuilding = category.isIndexBuilding(i);
 			
 			BuildingItem item = null;
 			if(isBuilding) {
 				Building building = category.getChildBuildings().get(i - category.getChildCategories().size());
+				if(!building.show) continue;
+				
 				if(building.show)
 					item = new BuildingItem(building, this);
 				else
@@ -203,12 +261,14 @@ public class BuildingMenu extends UiComponent {
 		UiConstraints cons = new UiConstraints();
 		cons.setX(new AlignX(XAlign.CENTER));
 		cons.setY(new AlignY(YAlign.BOTTOM, 0.0f));
-		cons.setLayout(new HorizontalLayout(0.0f, 0.05f));
+		cons.setLayout(new HorizontalLayout(0.0f + scrollAmt, 0.05f));
 		this.setConstraints(cons);
 		this.setScale(0.75f, 0.075f);
 		this.setColor(ColorPalette.MAIN_LIGHT);
-		this.setClippingBounds(0.125f, 0, 1.75f, 1.0f); //TODO cutoff items
-		
+		this.setClippingBounds(0.125f, 0, 1.0f, 1.0f); //TODO cutoff items
+		Window.listeners.add(this);
+
+		this.scroll = new SmoothFloat(0.0f);
 		this.yValue = new SmoothFloat(-0.25f);
 	}
 

@@ -81,6 +81,10 @@ public class SitDownAction extends Action {
 	public void loadAction(String data) {
 		String line = data.replace("[", "").replace("]", "").replace("SIT_DOWN_DATA", "").replace(";", "");
 		this.table = BuildingManager.getBuildingWithID(Integer.parseInt(line));
+		TableComponent component = (TableComponent) table.getComponent("Table");
+		component.setTaken(true);
+		if(this.object.hasComponent("PartyLeader"))
+			component.setTablePartyLeader(object);
 	}
 
 }

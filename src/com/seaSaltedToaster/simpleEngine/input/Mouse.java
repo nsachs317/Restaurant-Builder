@@ -6,7 +6,7 @@ import com.seaSaltedToaster.simpleEngine.input.glfwCallbacks.MouseButtonCallback
 import com.seaSaltedToaster.simpleEngine.input.glfwCallbacks.MousePositionCallback;
 import com.seaSaltedToaster.simpleEngine.input.glfwCallbacks.ScrollCallback;
 import com.seaSaltedToaster.simpleEngine.input.listeners.ScrollListener;
-import com.seaSaltedToaster.simpleEngine.renderer.Window;
+import com.seaSaltedToaster.simpleEngine.renderer.window.Window;
 
 public class Mouse {
 

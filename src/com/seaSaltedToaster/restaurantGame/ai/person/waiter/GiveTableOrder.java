@@ -3,10 +3,14 @@ package com.seaSaltedToaster.restaurantGame.ai.person.waiter;
 import com.seaSaltedToaster.MainApp;
 import com.seaSaltedToaster.restaurantGame.ai.person.Action;
 import com.seaSaltedToaster.restaurantGame.ai.person.ActionComponent;
+import com.seaSaltedToaster.restaurantGame.ai.person.WaitAction;
 import com.seaSaltedToaster.restaurantGame.ai.person.customer.LeaveRestaurant;
 import com.seaSaltedToaster.restaurantGame.ai.person.customer.PartyLeader;
 import com.seaSaltedToaster.restaurantGame.building.BuildingId;
+import com.seaSaltedToaster.restaurantGame.objects.Restaurant;
+import com.seaSaltedToaster.restaurantGame.objects.food.Food;
 import com.seaSaltedToaster.restaurantGame.objects.food.ItemOrder;
+import com.seaSaltedToaster.restaurantGame.objects.people.ServerComponent;
 import com.seaSaltedToaster.restaurantGame.objects.seating.TableComponent;
 import com.seaSaltedToaster.restaurantGame.save.SaveSystem;
 
@@ -41,14 +45,15 @@ public class GiveTableOrder extends Action {
 		
 		//Give people the food
 		TableComponent table = order.getTable();
-		PartyLeader member = (PartyLeader) table.getTablePartyLeader().getComponent("PartyLeader");
-		ActionComponent mComp = (ActionComponent) member.getEntity().getComponent("Action");
-		mComp.getActions().add(new LeaveRestaurant(member));
+		table.setFoodItem(order.getFoodItem());
 		
 		//Reset tree
 		ActionComponent aComp = (ActionComponent) object.getComponent("Action");
 		aComp.getActions().clear();
 		aComp.doTree(true);
+		
+		ServerComponent c = (ServerComponent) object.getComponent("Server");
+		c.order = null;
 		
 		//Return
 		return true;

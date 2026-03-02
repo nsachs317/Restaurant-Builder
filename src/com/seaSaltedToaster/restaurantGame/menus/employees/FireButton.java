@@ -1,7 +1,9 @@
 package com.seaSaltedToaster.restaurantGame.menus.employees;
 
+import com.seaSaltedToaster.MainApp;
 import com.seaSaltedToaster.restaurantGame.objects.people.Employee;
 import com.seaSaltedToaster.simpleEngine.Engine;
+import com.seaSaltedToaster.simpleEngine.entity.Entity;
 import com.seaSaltedToaster.simpleEngine.uis.UiComponent;
 import com.seaSaltedToaster.simpleEngine.uis.constraints.UiConstraints;
 import com.seaSaltedToaster.simpleEngine.uis.constraints.XAlign;
@@ -34,6 +36,7 @@ public class FireButton extends UiComponent {
 	@Override 
 	public void onClick() {
 		employee.fireEmployee();
+		MainApp.restaurant.layers.get(0).getManager().delete((Entity) employee.getEntity());
 		
 		button.setActive(false);
 		this.menu.removeComponent(button);

@@ -2,6 +2,7 @@ package com.seaSaltedToaster.restaurantGame.ai;
 
 import com.seaSaltedToaster.simpleEngine.entity.Entity;
 import com.seaSaltedToaster.simpleEngine.utilities.Vector3f;
+import com.seaSaltedToaster.simpleEngine.utilities.skybox.TimeHandler;
 
 public class Mover {
 	
@@ -40,7 +41,7 @@ public class Mover {
 		
 		//THe per-frame movement the entity will have
 		this.offset = target.subtract(start);
-		float div = 25.0f;
+		float div = 25.0f / TimeHandler.timeSpeed;
 		this.offset.divide(div * getTargetDistance());
 		
 		//Say that we are moving now

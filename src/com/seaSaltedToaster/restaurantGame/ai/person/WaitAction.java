@@ -2,8 +2,9 @@ package com.seaSaltedToaster.restaurantGame.ai.person;
 
 import com.seaSaltedToaster.restaurantGame.building.BuildingId;
 import com.seaSaltedToaster.restaurantGame.save.SaveSystem;
-import com.seaSaltedToaster.simpleEngine.renderer.Window;
+import com.seaSaltedToaster.simpleEngine.renderer.window.Window;
 import com.seaSaltedToaster.simpleEngine.utilities.Timer;
+import com.seaSaltedToaster.simpleEngine.utilities.skybox.TimeHandler;
 
 public class WaitAction extends Action {
 
@@ -25,7 +26,7 @@ public class WaitAction extends Action {
 	@Override
 	public void update() {
 		//Update current time every frame
-		double delta = Window.DeltaTime;
+		double delta = TimeHandler.gameTime;
 		this.timer.update(delta);
 	}
 

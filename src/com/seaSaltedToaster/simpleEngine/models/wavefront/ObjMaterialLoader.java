@@ -14,7 +14,7 @@ public class ObjMaterialLoader {
 		BufferedReader br = new BufferedReader(isr);
 		String line;
 		
-		List<ObjMaterial> materials = null;
+		List<ObjMaterial> materials = new ArrayList<ObjMaterial>(16);
 		ObjMaterial currentMaterial = null;
 		
 		try {

@@ -5,6 +5,7 @@ import org.lwjgl.glfw.GLFW;
 import com.seaSaltedToaster.MainApp;
 import com.seaSaltedToaster.restaurantGame.menus.buildingSelector.BuildingMenu;
 import com.seaSaltedToaster.restaurantGame.menus.employees.EmployeeMenu;
+import com.seaSaltedToaster.restaurantGame.menus.management.ManagerMenu;
 import com.seaSaltedToaster.simpleEngine.Engine;
 import com.seaSaltedToaster.simpleEngine.input.listeners.KeyEventData;
 import com.seaSaltedToaster.simpleEngine.input.listeners.KeyListener;
@@ -20,6 +21,7 @@ import com.seaSaltedToaster.simpleEngine.uis.layouts.VerticalLayout;
 public class GeneralMenu extends UiComponent implements KeyListener {
 
 	//Other menus
+	private ManagerMenu manager;
 	private BuildingMenu building;
 	private EmployeeMenu employee;
 	private PaintMenu paint;
@@ -48,7 +50,7 @@ public class GeneralMenu extends UiComponent implements KeyListener {
 	public void notifyButton(KeyEventData eventData) {
 		if(eventData.getAction() != GLFW.GLFW_PRESS) return;
 		if(eventData.getKey() == GLFW.GLFW_KEY_ESCAPE) {
-			closeOthers();
+			closeOthers(-1);
 			
 			for(int i = 0; i < buttonCount; i++) {
 				buttons[i].setInUse(false);
@@ -58,43 +60,46 @@ public class GeneralMenu extends UiComponent implements KeyListener {
 		
 	@Override
 	public void onClick() {	
-		for(int i = 0; i < buttonCount; i++) {
-			buttons[i].setInUse(false);
-		}
+		//closeAll();
+//		for(int i = 0; i < buttonCount; i++) {
+//			if(buttons[i].isInUse())
+//			buttons[i].setInUse(false);
+//		}
 		
 		//General
 		if(buttons[0].isHovering()) {
-			buttons[0].setInUse(!buttons[0].isInUse());
-			closeOthers();
+			manager.show();
+			buttons[0].setInUse(!(buttons[0].isInUse()));
+			closeOthers(0);
 		}
 		//Building
-		if(buttons[1].isHovering()) {
-			closeOthers();
+		else if(buttons[1].isHovering()) {
 			building.show();
 			buttons[1].setInUse(!buttons[1].isInUse());
+			closeOthers(1);
 		}
 		//Employees
-		if(buttons[2].isHovering()) {
-			closeOthers();
+		else if(buttons[2].isHovering()) {
 			employee.show();
 			buttons[2].setInUse(!buttons[2].isInUse());
+			closeOthers(2);
 		}
 		//Paint
-		if(buttons[3].isHovering()) {
-			closeOthers();
+		else if(buttons[3].isHovering()) {
 			paint.show();
 			buttons[3].setInUse(!buttons[3].isInUse());
+			closeOthers(3);
 		}
 		//Delete
-		if(buttons[4].isHovering()) {
-			closeOthers();
+		else if(buttons[4].isHovering()) {
 			delete.show(buttons[4]);
 			buttons[4].setInUse(!buttons[4].isInUse());
+			closeOthers(4);
 		}
 		//Settings
-		if(buttons[5].isHovering()) {
-			closeOthers();
+		else if(buttons[5].isHovering()) {
 			buttons[5].setInUse(!buttons[5].isInUse());
+			closeOthers(5);
 		}
 	}
 
@@ -108,7 +113,29 @@ public class GeneralMenu extends UiComponent implements KeyListener {
 		MainApp.menuFocused = false;
 	}
 	
-	private void closeOthers() {
+	private void closeOthers(int it) {
+		for(int i = 0; i < buttonCount; i++) {
+			if(i != it)
+				buttons[i].setInUse(false);
+		}
+		if(manager.isOpen() & it != 0) {
+			manager.show();
+		}
+		if(building.isOpen() & it != 1) {
+			building.show();
+		}
+		if(employee.isOpen() & it != 2) {
+			employee.show();
+		}
+		if(paint.isOpen() & it != 3) {
+			paint.show();
+		}
+		if(delete.isDeleting() & it != 4) {
+			delete.show(buttons[4]);
+		}
+	}
+	
+	private void closeAll() {
 		if(building.isOpen()) {
 			building.show();
 		}
@@ -121,6 +148,7 @@ public class GeneralMenu extends UiComponent implements KeyListener {
 		if(delete.isDeleting()) {
 			delete.show(buttons[4]);
 		}
+		
 	}
 
 	private void addButtons(Engine engine) {
@@ -157,6 +185,14 @@ public class GeneralMenu extends UiComponent implements KeyListener {
 
 	public UiComponent[] getButtons() {
 		return buttons;
+	}
+
+	public ManagerMenu getManager() {
+		return manager;
+	}
+
+	public void setManager(ManagerMenu manager) {
+		this.manager = manager;
 	}
 
 	public BuildingMenu getBuilding() {
