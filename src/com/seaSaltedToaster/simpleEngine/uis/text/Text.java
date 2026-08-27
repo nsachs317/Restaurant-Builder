@@ -40,6 +40,16 @@ public class Text extends UiComponent {
         loadText();
 	}
 	
+	public Text(String text, float fontSize, int level, FontType type) {
+		super(level);
+		this.setPosition(0.0f, 0.0f);
+		this.textString = text;
+		this.fontSize = fontSize;
+        this.font = type;
+        this.lineMaxSize = 1;
+        loadText();
+	}
+
 	@Override
 	public void updateComponent(Engine engine) {
 		constraints.updateConstraints(this);

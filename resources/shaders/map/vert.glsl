@@ -16,6 +16,12 @@ uniform mat4 viewMatrix;
 uniform mat4 projectionMatrix;
 uniform mat4 lightViewMatrix;
 
+float random (vec2 st) {
+    return fract(sin(dot(st.xy,
+                         vec2(12.9898,78.233)))*
+        43758.5453123);
+}
+
 void main(void)	{
 
 	vec4 worldPosition = transformationMatrix * vec4(position, 1.0f);
@@ -26,6 +32,7 @@ void main(void)	{
 			
 	surfaceNormal = (transformationMatrix * vec4(normal,0.0)).xyz;
 			
-	pass_color = color;
+	float rnd = random(worldPosition.xy) / 25.0f;
+	pass_color = color + vec3(rnd);
 	pass_id = float(id);
 }

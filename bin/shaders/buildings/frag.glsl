@@ -4,7 +4,7 @@ const vec4 nightColor = vec4(0.0f);
 
 const vec3 primaryInd = vec3(0.1f, 0.15f, 0.2f);
 const vec3 secondaryInd = vec3(0.2f, 0.15f, 0.1f);
-const float factor = 1.5;
+const float factor = 1.1;
 
 in vec3 pass_color;
 in vec3 surfaceNormal;

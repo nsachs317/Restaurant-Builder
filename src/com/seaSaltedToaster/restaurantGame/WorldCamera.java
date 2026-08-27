@@ -39,6 +39,7 @@ public class WorldCamera extends Camera implements ScrollListener, MousePosListe
 	public float camDist = 25, maxCamDist = 150;
 	private double lastX, lastY;
 	private float outerAngle = 360;
+	private boolean lock = false;
 	
 	//Points
 	private Vector3f posTarget;
@@ -54,6 +55,19 @@ public class WorldCamera extends Camera implements ScrollListener, MousePosListe
 		this.smoothPitch = new SmoothFloat(45.0f);
 		this.smoothYaw = new SmoothFloat(outerAngle);
 		registerCamera(engine);
+	}
+	
+	public void lock(boolean lock) {
+		this.lock = lock;
+	}
+	
+	@Override
+	public void resetPosition() {
+		this.position = new Vector3f(0,0,0);
+		if(smoothZoom == null) return;
+		this.smoothZoom.setTarget(25);
+		this.smoothPitch.setTarget(45);
+		this.smoothYaw.setTarget(360);
 	}
 	
 	@Override
@@ -83,7 +97,7 @@ public class WorldCamera extends Camera implements ScrollListener, MousePosListe
 	
 	@Override
 	public void notifyButton(MouseEventData eventData) {
-		if(MainApp.menuFocused)
+		if(MainApp.menuFocused || lock)
 			return;
 		
 		boolean isRightDown = (eventData.getKey() == GLFW.GLFW_MOUSE_BUTTON_RIGHT && eventData.getAction() == GLFW.GLFW_RELEASE);
@@ -99,7 +113,7 @@ public class WorldCamera extends Camera implements ScrollListener, MousePosListe
 		
 	@Override
 	public void notifyButton(MousePosData eventData) {
-		if(MainApp.menuFocused)
+		if(MainApp.menuFocused || lock)
 			return;
 		
 		boolean isRightDown = GLFW.glfwGetMouseButton(Window.windowID, RIGHT_MOUSE) == GLFW.GLFW_PRESS;
@@ -139,7 +153,7 @@ public class WorldCamera extends Camera implements ScrollListener, MousePosListe
 	
 	@Override
 	public void notifyScrollChanged(float scrollValue) {
-		if(MainApp.menuFocused)
+		if(MainApp.menuFocused || lock)
 			return;
 		
 		float increment = this.camDist / 10.0f; 

@@ -25,7 +25,7 @@ public class ResourceManager {
 	 * LOAD STATUS
 	 */
 	//Whether we loaded the intial resources yet
-	private boolean initialLoad = false;
+	private boolean initialLoad = false, gameLoad = false;
 	
 	public void doInitialLoad(Engine engine) {
 		//Check if these resources are already loaded
@@ -37,7 +37,6 @@ public class ResourceManager {
 		
 		//Load the audio system into play
 		System.out.println("Loading Audio System");
-		AudioMaster.init(engine);
 		AudioTracks.loadSounds(engine);
 		
 		//Languages
@@ -52,6 +51,9 @@ public class ResourceManager {
 	}
 	
 	public void doGameLoad(Engine engine) {
+		//Check if these resources are already loaded
+//		if(gameLoad) return;
+		
 		/*
 		 * BUILDINGS
 		 */
@@ -66,6 +68,7 @@ public class ResourceManager {
 		
 		//Make sure we say we are done
 		System.out.println("Completed Game Asset Load");
+		this.gameLoad = true;
 	}
 
 }

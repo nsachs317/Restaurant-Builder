@@ -56,7 +56,10 @@ public class MainMenu {
 		
 		//Moving all components
 		this.allX.update(Window.DeltaTime);
-		this.buttonContainer.getPosition().setX(allX.getValue());
+		
+		UiConstraints cons = this.buttonContainer.getConstraints();
+		AlignX alignX = (AlignX) cons.getXConstraint();
+		alignX.setGap(allX.getValue());
 	}
 
 	private void addButtons(Engine engine) {
@@ -77,27 +80,28 @@ public class MainMenu {
 		
 		//PLAY OR CONTINUE
 		this.playB = new MenuButton(this, 0, "menu_play");
-		this.playB.setTexture(playBg);
+//		this.playB.setTexture(playBg);
 		this.buttonContainer.addComponent(playB);
 		
 		//SETTINGS
 		this.settingsB = new MenuButton(this, 1, "menu_settings");
-		this.settingsB.setTexture(settingsBg);
+//		this.settingsB.setTexture(settingsBg);
 		this.buttonContainer.addComponent(settingsB);
 		
 		//EXIT
 		this.quitB = new MenuButton(this, 2, "menu_quit");
-		this.quitB.setTexture(quitBg);
+//		this.quitB.setTexture(quitBg);
 		this.buttonContainer.addComponent(quitB);
 	}
 
 	private void addTitle(Engine engine) {
 		//BUTTON CONTAINER
 		this.buttonContainer = new UiComponent(0);
-		this.buttonContainer.setAlpha(0.0f);
+		this.buttonContainer.setAlpha(0.1f);
 		this.buttonContainer.setScale(0.33f, 1.0f);
 		UiConstraints cons = this.buttonContainer.getConstraints();
-		cons.setLayout(new VerticalLayout(0.3f, 0.0125f));
+		cons.setX(new AlignX(XAlign.LEFT));
+		cons.setLayout(new VerticalLayout(0.3f, 0.025f));
 		this.background.addComponent(buttonContainer);
 		
 		this.allX = new SmoothFloat(0.0f);

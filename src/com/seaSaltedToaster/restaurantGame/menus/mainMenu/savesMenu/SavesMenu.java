@@ -23,8 +23,10 @@ import com.seaSaltedToaster.simpleEngine.uis.constraints.XAlign;
 import com.seaSaltedToaster.simpleEngine.uis.constraints.YAlign;
 import com.seaSaltedToaster.simpleEngine.uis.constraints.position.AlignX;
 import com.seaSaltedToaster.simpleEngine.uis.constraints.position.AlignY;
+import com.seaSaltedToaster.simpleEngine.uis.constraints.scale.AspectRatio;
 import com.seaSaltedToaster.simpleEngine.uis.constraints.scale.RelativeScale;
 import com.seaSaltedToaster.simpleEngine.uis.layouts.VerticalLayout;
+import com.seaSaltedToaster.simpleEngine.uis.text.Fonts;
 import com.seaSaltedToaster.simpleEngine.uis.text.Text;
 import com.seaSaltedToaster.simpleEngine.utilities.SmoothFloat;
 
@@ -52,12 +54,18 @@ public class SavesMenu implements ScrollListener {
 	//Animations
 	private SmoothFloat allX, titleSa, scroll;
 	
+	//Textures
+	private int separatorTexture;
+	
 	public SavesMenu(MenuManager manager, Engine engine) {
 		this.manager = manager;
 		this.manager.setSavesMenu(this);
 		this.engine = engine;
 		createPanel(engine);
 		addBarItems(engine);
+		
+		//
+		this.separatorTexture = engine.getTextureLoader().loadTexture("/uis/separator");
 		
 		//Per
 		addSaves();
@@ -81,6 +89,10 @@ public class SavesMenu implements ScrollListener {
 		this.scroll.update(Window.DeltaTime);
 		VerticalLayout layout = (VerticalLayout) backer.getConstraints().getLayout();
 		layout.setEdgeSpace(scroll.getValue()); 
+		
+		for(UiComponent child : backer.getChildren()) {
+			child.setClippingBounds(0.0f, 0.2f, 1.0f, 0.6f);
+		}
 	}
 	
 	@Override
@@ -116,8 +128,18 @@ public class SavesMenu implements ScrollListener {
 	        }
 	    });
 		
-		for(SaveButton button : buttons)
+		for(SaveButton button : buttons) {
 			this.backer.addComponent(button);
+			
+			UiComponent separator = new UiComponent(0);
+			separator.setTexture(separatorTexture);
+			UiConstraints separatorCons = separator.getConstraints();
+			separatorCons.setWidth(new RelativeScale(0.8f));
+//			separatorCons.setHeight(new AspectRatio(0.1f));
+			separatorCons.setX(new AlignX(XAlign.CENTER));
+			separator.setConstraints(separatorCons);
+			this.backer.addComponent(separator);
+		}
 	}
 	
 	public void addSave(File child) {
@@ -138,7 +160,7 @@ public class SavesMenu implements ScrollListener {
 		this.createButton.setInteractable(true, engine);
 		this.bottomBar.addComponent(createButton);
 		
-		this.title = new Text("saves_title", 2.25f, 1);
+		this.title = new Text("saves_title", 2.25f, 1, Fonts.FANCY);
 		this.title.setInteractable(true, engine);
 		UiConstraints titleCons = title.getConstraints();
 		titleCons.setWidth(new RelativeScale(0.5f));
@@ -148,7 +170,7 @@ public class SavesMenu implements ScrollListener {
 		this.topBar.addComponent(title);
 		LanguageManager.addText(title.getTextString(), title);
 		
-		this.title2 = new Text("saves_create_new", 2.25f, 1);
+		this.title2 = new Text("saves_create_new", 2.25f, 1, Fonts.FANCY);
 		this.title2.setInteractable(true, engine);
 		UiConstraints titleCons2 = title2.getConstraints();
 		titleCons2.setWidth(new RelativeScale(0.5f));
@@ -165,13 +187,13 @@ public class SavesMenu implements ScrollListener {
 		//Backer
 		this.backer = new UiComponent(1);
 		this.backer.setColor(1.0f);
-		this.backer.setAlpha(0.0f);
+		this.backer.setAlpha(1.0f);
 		UiConstraints backerCons = backer.getConstraints();
 		backerCons.setWidth(new RelativeScale(1.0f));
 		backerCons.setHeight(new RelativeScale(0.85f));
 		backerCons.setX(new AlignX(XAlign.CENTER));
 		backerCons.setY(new AlignY(YAlign.BOTTOM));
-		backerCons.setLayout(new VerticalLayout(-0.15f, 0.066f));
+		backerCons.setLayout(new VerticalLayout(0.0f, 0.0f));
 		this.mainBody.addComponent(backer);
 		
 		//Scroll pane
@@ -191,8 +213,8 @@ public class SavesMenu implements ScrollListener {
 		this.mainBody = new UiComponent(1);
 		this.mainBody.setScale(0.33f, 0.85f);
 		this.mainBody.setColor(0.0f);
-		this.mainBody.setAlpha(MenuSettings.TRANSP);
-		this.mainBody.setTexture(SettingsMenu.PANEL1);
+		//this.mainBody.setAlpha(MenuSettings.TRANSP);
+		this.mainBody.setTexture(engine.getTextureLoader().loadTexture("/uis/recipeBookBackground"));
 		UiConstraints cons = mainBody.getConstraints();
 		cons.setLayout(new VerticalLayout(0.05f, 0.05f));
 		engine.addUi(mainBody);

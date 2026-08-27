@@ -2,6 +2,7 @@ package com.seaSaltedToaster.restaurantGame.menus.mainMenu.loadingScreen;
 
 import com.seaSaltedToaster.MainApp;
 import com.seaSaltedToaster.MenuManager;
+import com.seaSaltedToaster.scenes.Game;
 import com.seaSaltedToaster.simpleEngine.Engine;
 import com.seaSaltedToaster.simpleEngine.renderer.window.Window;
 import com.seaSaltedToaster.simpleEngine.uis.UiComponent;
@@ -32,7 +33,7 @@ public class LoadingScreen {
 		this.cover.setAlpha(coverAnim.getValue());
 		
 		if(cover.getAlpha() >= 1.2f) {
-			engine.setCurrentScene(MainApp.game);
+			engine.setCurrentScene(new Game(MainApp.resourceManager));
 		}
 	}
 	

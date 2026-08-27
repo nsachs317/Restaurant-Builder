@@ -8,27 +8,35 @@ public class ShadowMapShader extends Shader {
 	private static final String vertexShader = "/shaders/shadows/vert.glsl";
 	private static final String fragmentShader = "/shaders/shadows/frag.glsl";
 	
-	protected UniformMatrix4f transformation = new UniformMatrix4f("transformationMatrix");
-	protected UniformMatrix4f viewMatrix = new UniformMatrix4f("viewMatrix");
-	protected UniformMatrix4f projectionMatrix = new UniformMatrix4f("projectionMatrix");
+	protected UniformMatrix4f transform = new UniformMatrix4f("transform");
+	protected UniformMatrix4f view = new UniformMatrix4f("view");
+	protected UniformMatrix4f projection = new UniformMatrix4f("projection");
 
 	public ShadowMapShader() {
 		super(vertexShader, fragmentShader, "in_position");
-		super.locateUniform(transformation);
-		super.locateUniform(viewMatrix);
-		super.locateUniform(projectionMatrix);
+		super.locateUniforms(transform, view, projection);
+	}
+
+	public static String getVertexshader() {
+		return vertexShader;
+	}
+
+	public static String getFragmentshader() {
+		return fragmentShader;
+	}
+
+	public UniformMatrix4f getTransform() {
+		return transform;
+	}
+
+	public UniformMatrix4f getView() {
+		return view;
+	}
+
+	public UniformMatrix4f getProjection() {
+		return projection;
 	}
 	
-	public UniformMatrix4f getTransformation() {
-		return transformation;
-	}
-		
-	public UniformMatrix4f getViewMatrix() {
-		return viewMatrix;
-	}
 	
-	public UniformMatrix4f getProjectionMatrix() {
-		return projectionMatrix;
-	}
 	
 }

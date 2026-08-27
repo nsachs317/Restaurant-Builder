@@ -5,6 +5,8 @@ import com.seaSaltedToaster.restaurantGame.tools.ColorPalette;
 import com.seaSaltedToaster.restaurantGame.tools.RayMode;
 import com.seaSaltedToaster.restaurantGame.tools.Raycaster;
 import com.seaSaltedToaster.simpleEngine.Engine;
+import com.seaSaltedToaster.simpleEngine.input.Mouse;
+import com.seaSaltedToaster.simpleEngine.renderer.window.Window;
 import com.seaSaltedToaster.simpleEngine.uis.UiComponent;
 import com.seaSaltedToaster.simpleEngine.uis.constraints.UiConstraints;
 import com.seaSaltedToaster.simpleEngine.uis.constraints.XAlign;
@@ -13,18 +15,20 @@ import com.seaSaltedToaster.simpleEngine.uis.constraints.position.AlignX;
 import com.seaSaltedToaster.simpleEngine.uis.constraints.position.AlignY;
 import com.seaSaltedToaster.simpleEngine.uis.constraints.scale.AspectRatio;
 import com.seaSaltedToaster.simpleEngine.uis.constraints.scale.RelativeScale;
+import com.seaSaltedToaster.simpleEngine.uis.layouts.HorizontalLayout;
+import com.seaSaltedToaster.simpleEngine.utilities.Vector2f;
 import com.seaSaltedToaster.simpleEngine.utilities.Vector3f;
 
 public class PaintMenu extends UiComponent {
 
 	//Coloring / Basics
 	private Vector3f primary, secondary;
+	private Vector2f offset;
 	private Engine engine;
 	private boolean isOpen = false;
 	
 	//Actual menu
-	private UiComponent picker, pickerIcon;
-	private UiComponent paint, paintIcon;
+	private UiComponent tooltip, primaryC, secondaryC;
 	
 	//Colors
 	private float COLOR = ColorPalette.BUTTON_BASE;
@@ -34,49 +38,35 @@ public class PaintMenu extends UiComponent {
 		super(8);
 		this.primary = new Vector3f(0);
 		this.secondary = new Vector3f(0);
+		this.offset = new Vector2f(0.05f, 0.0f);
 		this.setActive(false);
 		this.engine = MainApp.restaurant.engine;
 		createUis();
 	}
 	
 	public void updateSelf() {
-		RayMode mode = Raycaster.mode;
-		picker.setColor(COLOR);
-		paint.setColor(COLOR);
-		switch(mode) {
-		case DEFAULT:
-			break;
-		case DELETE:
-			break;
-		case PAINT:
-			this.paint.setColor(LIGHT);
-			break;
-		case PICKER:
-			this.picker.setColor(LIGHT);
-			break;
-		default:
-			break;
-		}
+		float x = (float) Mouse.normalizeMouseCoordX(Window.getCursorPosX());
+		float y = (float) Mouse.normalizeMouseCoordY(Window.getCursorPosY());		
+		this.tooltip.setPosition(x + offset.x, y + offset.y);
+		
+		this.primaryC.setColor(primary);
+		this.secondaryC.setColor(secondary);
 	}
 	
 	@Override
 	public void onClick() {
-		if(paint.isHovering()) {
-			Raycaster.mode = RayMode.PAINT;
-		}
-		if(picker.isHovering()) {
-			Raycaster.mode = RayMode.PICKER;
-		}
+		
 	}
 	
 	public void show() {
 		if(isOpen) {
 			Raycaster.mode = RayMode.DEFAULT;
 		} else if(!isOpen) {
-			
+			Raycaster.mode = RayMode.PAINT_PICK;
 		}
 		this.isOpen = !isOpen;
 		this.setActive(isOpen);
+		this.tooltip.setActive(isOpen);
 	}
 	
 	private void createUis() {
@@ -85,59 +75,60 @@ public class PaintMenu extends UiComponent {
 		cons.setY(new AlignY(YAlign.MIDDLE, 0.0f));
 		cons.setWidth(new RelativeScale(1.5f));
 		cons.setHeight(new AspectRatio(1.5f));
-		addPicker();
-		addPainter();
+		createTooltip();
 		this.setAlpha(0.0f);
 		this.setInteractable(true, engine);
 	}
-
-	private void addPainter() {
-		this.paint = new UiComponent(4);
-		paint.setColor(ColorPalette.BUTTON_BASE);
-		paint.setInteractable(true, engine);
-		this.addComponent(paint);
+	
+	private void createTooltip() {
+		float size = 0.825f;
+		
+		this.tooltip = new UiComponent(4);
+		tooltip.setColor(ColorPalette.MAIN_SHADE);
+		MainApp.restaurant.engine.addUi(tooltip);
 		UiConstraints cons = new UiConstraints();
-		cons.setX(new AlignX(XAlign.CENTER));
-		cons.setY(new AlignY(YAlign.BOTTOM, 0.25f));
-		cons.setWidth(new RelativeScale(0.5f));
-		cons.setHeight(new AspectRatio(1.0f));
-		paint.setConstraints(cons);
+		cons.setLayout(new HorizontalLayout(-0.3f, 0.05f));
+		cons.setHeight(new RelativeScale(0.025f));
+		cons.setWidth(new AspectRatio(2.0f));
+		tooltip.setConstraints(cons);
 		
-		int icon = engine.getTextureLoader().loadTexture("/uis/brush");
-		this.paintIcon = new UiComponent(4);
-		paintIcon.setTexture(icon);
-		UiConstraints iconCons = new UiConstraints();
-		iconCons.setX(new AlignX(XAlign.CENTER));
-		iconCons.setY(new AlignY(YAlign.MIDDLE));
-		iconCons.setWidth(new RelativeScale(0.75f));
-		iconCons.setHeight(new AspectRatio(1.0f));
-		paintIcon.setConstraints(iconCons);
-		paint.addComponent(paintIcon);
-	}
-
-	private void addPicker() {
-		this.picker = new UiComponent(4);
-		picker.setColor(ColorPalette.BUTTON_BASE);
-		picker.setInteractable(true, engine);
-		this.addComponent(picker);
-		UiConstraints cons = new UiConstraints();
-		cons.setX(new AlignX(XAlign.CENTER));
-		cons.setY(new AlignY(YAlign.TOP, 0.25f));
-		cons.setWidth(new RelativeScale(0.5f));
-		cons.setHeight(new AspectRatio(1.0f));
-		picker.setConstraints(cons);
+		UiComponent primaryCB = new UiComponent(4);
+		primaryCB.setColor(ColorPalette.MAIN_LIGHT);
+		this.tooltip.addComponent(primaryCB);
+		UiConstraints cons1 = new UiConstraints();
+		cons1.setY(new AlignY(YAlign.MIDDLE, 0.f));
+		cons1.setHeight(new RelativeScale(size));
+		cons1.setWidth(new AspectRatio(1.f));
+		primaryCB.setConstraints(cons1);
 		
-		int icon = engine.getTextureLoader().loadTexture("/uis/picker");
-		this.pickerIcon = new UiComponent(4);
-		pickerIcon.setTexture(icon);
-		UiConstraints iconCons = new UiConstraints();
-		iconCons.setX(new AlignX(XAlign.CENTER));
-		iconCons.setY(new AlignY(YAlign.MIDDLE));
-		iconCons.setWidth(new RelativeScale(0.75f));
-		iconCons.setHeight(new AspectRatio(1.0f));
-		pickerIcon.setConstraints(iconCons);
-		picker.addComponent(pickerIcon);// TODO Auto-generated method stub
+		this.primaryC = new UiComponent(4);
+		primaryCB.addComponent(primaryC);
+		UiConstraints cons2 = new UiConstraints();
+		cons2.setY(new AlignY(YAlign.MIDDLE, 0.f));
+		cons2.setX(new AlignX(XAlign.CENTER));
+		cons2.setHeight(new RelativeScale(size));
+		cons2.setWidth(new AspectRatio(1.f));
+		primaryC.setConstraints(cons2);
 		
+		UiComponent secondaryCB = new UiComponent(4);
+		secondaryCB.setColor(ColorPalette.MAIN_LIGHT);
+		this.tooltip.addComponent(secondaryCB);
+		UiConstraints cons3 = new UiConstraints();
+		cons3.setY(new AlignY(YAlign.MIDDLE, 0.f));
+		cons3.setHeight(new RelativeScale(size));
+		cons3.setWidth(new AspectRatio(1.f));
+		secondaryCB.setConstraints(cons3);
+		
+		this.secondaryC = new UiComponent(4);
+		secondaryCB.addComponent(secondaryC);
+		UiConstraints cons4 = new UiConstraints();
+		cons4.setY(new AlignY(YAlign.MIDDLE, 0.f));
+		cons4.setX(new AlignX(XAlign.CENTER));
+		cons4.setHeight(new RelativeScale(size));
+		cons4.setWidth(new AspectRatio(1.f));
+		secondaryC.setConstraints(cons4);
+		
+		this.tooltip.setActive(false);
 	}
 
 	public Vector3f getPrimary() {

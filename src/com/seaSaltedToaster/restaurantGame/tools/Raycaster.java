@@ -117,6 +117,8 @@ public class Raycaster implements MouseListener, MousePosListener {
 				
 		//Key states
 		boolean isLeftDown = eventData.getKey() == GLFW.GLFW_MOUSE_BUTTON_LEFT;
+		boolean isRightDown = eventData.getKey() == GLFW.GLFW_MOUSE_BUTTON_RIGHT;
+
 		boolean isPlaceDown = eventData.getAction() == GLFW.GLFW_PRESS;
 		
 		switch(mode) {
@@ -130,16 +132,20 @@ public class Raycaster implements MouseListener, MousePosListener {
 				
 				id.getLayer().remove(builder.getSelectedEntity());
 				break;
-			case PAINT:
-				if(!isLeftDown || !isPlaceDown || builder.getSelectedEntity() == null) break;
-				BuildingId id2 = (BuildingId) builder.getSelectedEntity().getComponent("BuildingId");
-				if(id2 == null) return;
+			case PAINT_PICK:
+				if(!isPlaceDown || builder.getSelectedEntity() == null) break;
+
+				if(isLeftDown) {
+					BuildingId id2 = (BuildingId) builder.getSelectedEntity().getComponent("BuildingId");
+					if(id2 == null) return;
+					
+					id2.setPrimary(paint.getPrimary());
+					id2.setSecondary(paint.getSecondary());
+				}
+				else if(isRightDown) {
+					this.pickColor(builder.getSelectedEntity());
+				}
 				
-				id2.setPrimary(paint.getPrimary());
-				id2.setSecondary(paint.getSecondary());
-				break;
-			case PICKER:
-				this.pickColor(builder.getSelectedEntity());
 				break;
 			default:
 				this.click(eventData);
@@ -157,7 +163,7 @@ public class Raycaster implements MouseListener, MousePosListener {
 	
 	private void click(MouseEventData eventData) {
 		//Key states
-		boolean leftClicked = (eventData.getAction() == GLFW.GLFW_PRESS && eventData.getKey() == GLFW.GLFW_MOUSE_BUTTON_LEFT);
+		boolean leftClicked = (eventData.getAction() == GLFW.GLFW_PRESS && eventData.getKey() == GLFW.GLFW_MOUSE_BUTTON_LEFT && !MainApp.menuFocused);
 		
 		//Check if we clicked on an object
 		boolean selectedExistingObject = (leftClicked && !builder.isBuilding() && builder.getSelectedEntity() != null);

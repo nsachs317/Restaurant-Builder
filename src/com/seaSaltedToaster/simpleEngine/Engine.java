@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.seaSaltedToaster.Scene;
 import com.seaSaltedToaster.restaurantGame.tools.Reporter;
+import com.seaSaltedToaster.simpleEngine.audio.management.AudioMaster;
 import com.seaSaltedToaster.simpleEngine.entity.Camera;
 import com.seaSaltedToaster.simpleEngine.entity.Entity;
 import com.seaSaltedToaster.simpleEngine.input.Keyboard;
@@ -102,6 +103,8 @@ public class Engine {
 		this.shadowRenderer = new ShadowMapRenderer(this);
 		
 		this.advRenderer = new AdvancedRenderer(this);
+		
+		AudioMaster.init(this);
 	}
 	
 	public void renderScene() {
@@ -151,6 +154,8 @@ public class Engine {
 	}
 	
 	public void renderShadows(List<Entity> others) {
+		this.shadowRenderer.updateShadowBox();
+		
 		this.shadowRenderer.prepare();
 		this.shadowRenderer.render(others);
 		this.shadowRenderer.endRender();

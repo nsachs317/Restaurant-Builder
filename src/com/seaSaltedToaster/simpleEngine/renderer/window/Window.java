@@ -1,7 +1,9 @@
 package com.seaSaltedToaster.simpleEngine.renderer.window;
 
+import java.nio.DoubleBuffer;
 import java.util.*;
 
+import org.lwjgl.BufferUtils;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL11;
@@ -19,6 +21,7 @@ public class Window {
 	private static double lastFrameTime;
 	
 	public static double width, height;
+	public static boolean fullscreen = true;
 	
 	public void createWindow(int width, int height, String title) {
 		boolean initState = GLFW.glfwInit();
@@ -32,7 +35,8 @@ public class Window {
 		//Anti Aliasing
 		GLFW.glfwWindowHint(GLFW.GLFW_SAMPLES, 8);
 		
-		windowID = GLFW.glfwCreateWindow(width, height, title, MemoryUtil.NULL, MemoryUtil.NULL);
+		long arg01 = fullscreen ? GLFW.glfwGetPrimaryMonitor() : MemoryUtil.NULL;
+		windowID = GLFW.glfwCreateWindow(width, height, title, arg01, MemoryUtil.NULL);
 		
 		if(windowID == MemoryUtil.NULL) {
 			throw new IllegalStateException("Cant make window :(");
@@ -66,6 +70,18 @@ public class Window {
 		lastFrameTime = currentTime;
 		DeltaTime = delta;
 		return delta;
+	}
+	
+	public static double getCursorPosX() {
+	    DoubleBuffer posX = BufferUtils.createDoubleBuffer(1);
+	    GLFW.glfwGetCursorPos(windowID, posX, null);
+	    return posX.get(0);
+	}
+	    
+	public static double getCursorPosY() {
+	    DoubleBuffer posY = BufferUtils.createDoubleBuffer(1);
+	    GLFW.glfwGetCursorPos(windowID, null, posY);
+	    return posY.get(0);
 	}
 	
 	public static double getWidth() {

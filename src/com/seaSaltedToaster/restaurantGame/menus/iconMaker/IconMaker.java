@@ -54,6 +54,7 @@ public class IconMaker {
 		
 		int fboId = vao.id;
 		Fbo fbo = getFbo(fboId);
+		fbo.unbindFrameBuffer();
 		
 		prePrepare(fbo);
 		fbo.bindFrameBuffer();

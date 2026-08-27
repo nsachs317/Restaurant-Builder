@@ -92,7 +92,8 @@ public class MenuButton extends UiComponent {
 	private void createButton(String word, Engine engine) {		
 		this.scale = new SmoothFloat(nScale);
 		UiConstraints bCons = this.getConstraints();
-		bCons.setX(new AlignX(XAlign.CENTER));
+		bCons.setX(new AlignX(XAlign.LEFT, 0.125f));
+		this.setAlpha(0.5f);
 		
 		float textSize = 1.125f;
 		this.text = new Text(word, textSize, 0);

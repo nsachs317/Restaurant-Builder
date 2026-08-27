@@ -19,7 +19,7 @@ import com.seaSaltedToaster.simpleEngine.utilities.Vector3f;
 public class Ground {
 	
 	//Type
-	public String groundType = "Snowy";
+	public String groundType = "Grassy";
 	private GroundSettings[] types;
 	public GroundSettings type;
 	
@@ -77,9 +77,18 @@ public class Ground {
 				this.type = type;
 		}
 		
+		this.generateGround(loadSystem.hasData(), engine);
+	}
+	
+	public void generateGeneric(Engine engine) {
+		this.type = types[0];
+		this.generateGround(false, engine);
+	}
+	
+	public void generateGround(boolean hasData, Engine engine) {
 		//Create tile array
 		createArrays();
-		createTiles(loadSystem.hasData());
+		createTiles(hasData);
 		
 		//Get arrays
 		float[] positions = getVectorList(this.vertices);

@@ -3,44 +3,15 @@ package com.seaSaltedToaster;
 import org.lwjgl.glfw.GLFW;
 
 import com.seaSaltedToaster.restaurantGame.WorldCamera;
-import com.seaSaltedToaster.restaurantGame.ai.person.ActionComponent;
-import com.seaSaltedToaster.restaurantGame.ai.person.NodeViewer;
-import com.seaSaltedToaster.restaurantGame.ai.person.customer.PartyLeader;
-import com.seaSaltedToaster.restaurantGame.ai.person.customer.PartySeating;
 import com.seaSaltedToaster.restaurantGame.audio.TrackPlayer;
-import com.seaSaltedToaster.restaurantGame.building.BuildingManager;
 import com.seaSaltedToaster.restaurantGame.building.categories.BuildingList;
-import com.seaSaltedToaster.restaurantGame.building.grid.PlacementGrid;
-import com.seaSaltedToaster.restaurantGame.building.layers.BuildLayer;
-import com.seaSaltedToaster.restaurantGame.ground.Ground;
-import com.seaSaltedToaster.restaurantGame.menus.DeleteTool;
-import com.seaSaltedToaster.restaurantGame.menus.GeneralMenu;
-import com.seaSaltedToaster.restaurantGame.menus.MoneyCounter;
-import com.seaSaltedToaster.restaurantGame.menus.PaintMenu;
-import com.seaSaltedToaster.restaurantGame.menus.TimeDisplay;
-import com.seaSaltedToaster.restaurantGame.menus.buildingSelector.BuildingMenu;
-import com.seaSaltedToaster.restaurantGame.menus.debug.DebugMenu;
-import com.seaSaltedToaster.restaurantGame.menus.employees.EmployeeMenu;
-import com.seaSaltedToaster.restaurantGame.menus.layers.LayerMenu;
-import com.seaSaltedToaster.restaurantGame.menus.mainMenu.MainMenu;
-import com.seaSaltedToaster.restaurantGame.menus.mainMenu.loadingScreen.IntroFade;
-import com.seaSaltedToaster.restaurantGame.menus.mainMenu.loadingScreen.LoadingScreen;
-import com.seaSaltedToaster.restaurantGame.menus.mainMenu.savesMenu.CreateMenu;
-import com.seaSaltedToaster.restaurantGame.menus.mainMenu.savesMenu.SavesMenu;
-import com.seaSaltedToaster.restaurantGame.menus.mainMenu.settingsMenu.SettingsMenu;
-import com.seaSaltedToaster.restaurantGame.menus.mainMenu.tutorial.WelcomePanel;
-import com.seaSaltedToaster.restaurantGame.menus.management.ManagerMenu;
 import com.seaSaltedToaster.restaurantGame.objects.Restaurant;
-import com.seaSaltedToaster.restaurantGame.objects.food.ItemOrder;
-import com.seaSaltedToaster.restaurantGame.save.LoadSystem;
-import com.seaSaltedToaster.restaurantGame.save.SaveSystem;
-import com.seaSaltedToaster.restaurantGame.tools.Raycaster;
 import com.seaSaltedToaster.restaurantGame.tools.Reporter;
+import com.seaSaltedToaster.scenes.Menu;
 import com.seaSaltedToaster.simpleEngine.Engine;
 import com.seaSaltedToaster.simpleEngine.audio.management.AudioMaster;
 import com.seaSaltedToaster.simpleEngine.entity.Entity;
 import com.seaSaltedToaster.simpleEngine.renderer.window.Window;
-import com.seaSaltedToaster.simpleEngine.uis.UiComponent;
 import com.seaSaltedToaster.simpleEngine.utilities.ScreenshotUtils;
 import com.seaSaltedToaster.simpleEngine.utilities.Vector3f;
 
@@ -49,14 +20,13 @@ public class MainApp {
 	//Game logic
 	public static Restaurant restaurant;
 	public static TrackPlayer trackPlayer;
+	public static ResourceManager resourceManager;
 	
 	//Menu logic
 	public static boolean menuFocused = false;
 	public static boolean quitApp = false;
 	
 	//Scenes in the game
-	public static Scene game = null;
-	public static Scene menu = null;
 	public static String curSave = "";
 	
 	public static void main(String[] args) {	
@@ -67,268 +37,11 @@ public class MainApp {
 		engine.setCamera(new WorldCamera(engine));
 		engine.getKeyboard().addKeyListener(new ScreenshotUtils());
 		
-		ResourceManager resourseManager = new ResourceManager();
-				
-		//Restaurant
-		MainApp.restaurant = new Restaurant(engine);
-		/*
-		 * GAME STATE
-		 */
-		game = new Scene() {
-			
-			//Objects in the game world
-			private Ground ground;
-			private Raycaster raycaster;
-			private BuildingManager manager;
-			
-			//Menus in the game world
-			private GeneralMenu general;
-			private ManagerMenu managerMenu;
-			private BuildingMenu building;
-			private EmployeeMenu employee;
-			private PaintMenu paint;
-			private DeleteTool delete;
-			
-			//Other objects
-			private TimeDisplay timeDisplay;
-			private MoneyCounter moneyCounter;
-			private LayerMenu layerMenu;
-			private IntroFade introFade;
-			private DebugMenu debug;
-			
-			//Save system
-			private SaveSystem saveSystem;
-			private LoadSystem loadSystem;
-			
-			private PlacementGrid grid;
-			
-			UiComponent comp;
-			
-			@Override
-			public void loadScene(Engine engine) {
-				/*
-				 * GAME RESOURCES
-				 */
-				
-				//Load all game assets
-				resourseManager.doGameLoad(engine);
-				engine.setCamera(new WorldCamera(engine));
-				
-				this.saveSystem = new SaveSystem(curSave);
-				
-				/*
-				 * GAME OBJECTS
-				 */
-				//Layers
-				this.ground = new Ground(25.0f, 0.25f, engine); 
-				MainApp.restaurant.ground = ground;
-				
-				this.raycaster = new Raycaster(engine);
-				this.raycaster.ground = ground;
-				
-				this.manager = new BuildingManager(engine, 25.0f, raycaster, BuildingList.getRoot().getChildBuildings().get(0));
-				
-				//Ground the world is on
-				this.loadSystem = new LoadSystem(curSave);
-				this.loadSystem.loadInfo();
-				
-				this.ground.generateGround(loadSystem, engine);
-				
-				this.grid = new PlacementGrid(engine, 25.0f);
-
-				//Raycaster for building
-				
-				//Debug models
-				NodeViewer.vao = engine.getObjLoader().loadObjModel("cube");
-				
-				//Building manager
-				this.raycaster.builder = manager;
-								
-				//Uis
-				this.building = new BuildingMenu(manager, engine);
-				engine.addUi(building);
-				
-				this.employee = new EmployeeMenu();
-				engine.addUi(employee);
-				
-				this.managerMenu = new ManagerMenu(0);
-				engine.addUi(managerMenu);
-				
-				this.layerMenu = new LayerMenu(manager, engine);
-				engine.addUi(layerMenu);
-				
-				this.general = new GeneralMenu(engine);
-				this.general.setBuilding(building);
-				this.general.setEmployee(employee);
-				this.general.setManager(managerMenu);
-				engine.addUi(general);
-				
-				this.paint = new PaintMenu();
-				this.raycaster.paint = paint;
-				this.general.setPaint(paint);
-				this.general.getButtons()[3].addComponent(paint);
-				
-				this.delete = new DeleteTool();
-				this.general.setDelete(delete);
-				
-				this.timeDisplay = new TimeDisplay(engine);
-				engine.addUi(timeDisplay);
-				
-				this.moneyCounter = new MoneyCounter();
-				engine.addUi(moneyCounter);
-				
-				this.introFade = new IntroFade(engine);
-				this.introFade.slide(true);
-				
-				//Load save data
-				this.loadSystem.loadCamera((WorldCamera) engine.getCamera());
-				this.loadSystem.loadActions();
-				this.loadSystem.loadBuildings(manager);
-				this.loadSystem.loadEmployees(manager);
-				
-				this.saveSystem.loadOrders(restaurant);
-				this.saveSystem.loadChefOrders(restaurant);
-				
-				this.debug = new DebugMenu(engine);
-				
-				//engine.addUi(new WelcomePanel(engine));
-				
-				this.comp = new UiComponent(0);
-				this.comp.setScale(0.5f, 0.5f);
-				this.addComponent(comp);
-				
-				MainApp.menuFocused = false;
-			}
-
-			@Override
-			public void renderScene(Engine engine) {
-				ground.update(engine);
-				
-				manager.updateFrame();
-				comp.setTexture(engine.getShadowRenderer().getShadowMap());
-				
-				introFade.update();
-				
-				grid.setShowGrid(building.isOpen());
-				grid.renderGrid(engine);
-			}
-
-			@Override
-			public void updateScene(Engine engine) {
-				manager.renderSelection();
-			}
-
-			@Override
-			public void unloadScene(Engine engine) {
-				//Save normal stuff
-				saveSystem.save(engine.getCamera(), timeDisplay, ground, manager);
-				
-				//Save Ai actions
-				saveSystem.openTo("actions");
-				for(BuildLayer layer : manager.getLayers()) {
-					for(Entity entity : layer.getBuildings()) {
-						if(entity == null) continue;
-						PartyLeader leader = (PartyLeader) entity.getComponent("PartyLeader");
-						if(leader != null)
-							leader.save();
-						
-						PartySeating seating = (PartySeating) entity.getComponent("PartySeating");
-						if(seating != null)
-							seating.saveSeating();
-						
-						ActionComponent action = (ActionComponent) entity.getComponent("Action");
-						if(action != null)
-							action.save(saveSystem);
-					}
-				}
-				saveSystem.closeWriter();
-				
-				//Save Restaurant Data
-				saveSystem.openTo("orders");
-				for(ItemOrder order : restaurant.orders) 
-					saveSystem.saveOrder(order);
-				saveSystem.closeWriter();
-				
-				saveSystem.openTo("chefOrders");
-				for(ItemOrder order : restaurant.chefOrders) 
-					saveSystem.saveChefOrder(order);
-				saveSystem.closeWriter();
-			}
-			
-		};
-		
-		/*
-		 * MENU SCENE
-		 */
-		menu = new Scene() {
-			
-			/*
-			 * MENU OBJECTS
-			 */
-			private MenuManager manager;
-			
-			private MainMenu mainMenu;
-			private SettingsMenu settingsMenu;
-			private SavesMenu savesMenu;
-			private LoadingScreen loadingScreen;
-			private CreateMenu createMenu;
-			
-			@Override
-			public void loadScene(Engine engine) {
-				/*
-				 * STARTUP LOAD AND MENU ASSETS
-				 */
-				//Will do initial load if it hasnt been done yet
-				resourseManager.doInitialLoad(engine);
-				
-				SaveSystem.createFolder();
-				
-				trackPlayer = new TrackPlayer();
-//				trackPlayer.playNextTrack();
-				
-				/*
-				 * MENUS AND OBJECTS
-				 */
-				//Next create the main menus
-				this.manager = new MenuManager();
-				
-				this.mainMenu = new MainMenu(manager, engine);
-				this.settingsMenu = new SettingsMenu(manager, engine);
-				this.savesMenu = new SavesMenu(manager, engine);
-				this.loadingScreen = new LoadingScreen(manager, engine);
-				this.createMenu = new CreateMenu(manager, engine);
-
-				//No matter what, the camera will not move in the menu
-				MainApp.menuFocused = true;
-			}
-
-			@Override
-			public void renderScene(Engine engine) {
-				
-			}
-
-			@Override
-			public void updateScene(Engine engine) {
-				mainMenu.update();
-				settingsMenu.update();
-				savesMenu.update();
-				loadingScreen.update();
-				createMenu.update();
-			}
-
-			@Override
-			public void unloadScene(Engine engine) {
-				//Close reason (exit game or go to new scene)
-				mainMenu.getBackground().setActive(false);
-				settingsMenu.getMainBody().setActive(false);
-				savesMenu.getMainBody().setActive(false);
-				loadingScreen.getCover().setActive(false);
-			}
-			
-		};
+		resourceManager = new ResourceManager();
+		trackPlayer = new TrackPlayer();
 
 		//Set the new scene
-		engine.setCurrentScene(menu);
+		engine.setCurrentScene(new Menu(resourceManager));
 		
 		//Debug interface
 		double lastTime = GLFW.glfwGetTime();
@@ -341,6 +54,10 @@ public class MainApp {
 			restaurant.update();
 			
 			//Shadow map pass
+			if(restaurant.layers.size() > 0)
+				engine.renderShadows(restaurant.layers.get(0).getBuildings());
+			
+			//Post processing
 			engine.startPostProcess();
 			
 			//Render Normal Pass
@@ -363,10 +80,6 @@ public class MainApp {
 			Reporter.report("Other");
 			trackPlayer.update();
 			//Check if we closed
-			
-			engine.getShadowRenderer().clear();
-			//for(BuildLayer layer : restaurant.layers)
-				//engine.renderShadows(layer.getBuildings());
 			
 			if(GLFW.glfwGetTime() > lastTime+5) {
 				Reporter.report(); 

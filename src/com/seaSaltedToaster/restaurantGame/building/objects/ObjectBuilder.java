@@ -36,6 +36,8 @@ public class ObjectBuilder {
 	}
 	
 	public void placeAt(BuildLayer layer) {
+		if(object.getPrice() > MainApp.restaurant.money) return;
+
 		boolean alreadyBuildingAt = !layer.isBuildingAt(preview.getPosition(), object.type);
 		if(alreadyBuildingAt) {
 			layer.addBuilding(preview.copyEntity(), object, -127, true);
@@ -68,6 +70,7 @@ public class ObjectBuilder {
 		float snap = 4.0f;
 		
 		BuildingType type = object.type;
+		if(type == null) return placement;
 		switch(type) {
 			case Floor:
 				//Default snap to 1x1 grid
@@ -113,6 +116,8 @@ public class ObjectBuilder {
 				}
 				System.out.println(snapPosition.x % 1.0);
 				break;
+		default:
+			break;
 		}		
 		return snapPosition;
 	}

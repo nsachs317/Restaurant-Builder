@@ -24,6 +24,7 @@ import com.seaSaltedToaster.simpleEngine.uis.constraints.position.AlignX;
 import com.seaSaltedToaster.simpleEngine.uis.constraints.position.AlignY;
 import com.seaSaltedToaster.simpleEngine.uis.constraints.scale.AspectRatio;
 import com.seaSaltedToaster.simpleEngine.uis.constraints.scale.RelativeScale;
+import com.seaSaltedToaster.simpleEngine.uis.text.Fonts;
 import com.seaSaltedToaster.simpleEngine.uis.text.Text;
 import com.seaSaltedToaster.simpleEngine.utilities.SmoothFloat;
 
@@ -54,7 +55,7 @@ public class SaveButton extends UiComponent {
 		timeSince = SaveButton.daysOld(child);
 		
 		createPanel();
-		addDetails(child.getName(), df.format(time.toMillis()), humanReadableByteCountBin(getFileSize(child)) + " bytes");
+		addDetails(child.getName(), df.format(time.toMillis()), humanReadableByteCountBin(getFileSize(child)));
 		addIcon(savesMenu, icon);
 	}
 	
@@ -87,8 +88,6 @@ public class SaveButton extends UiComponent {
 	public void updateSelf() {		
 		this.hovScale.update(Window.DeltaTime);
 		this.setScaleMultiplier(hovScale.getValue());
-		
-		this.setClippingBounds(0.0f, 0.2f, 1.0f, 0.6f);
 	}
 	
 	@Override
@@ -142,19 +141,19 @@ public class SaveButton extends UiComponent {
 	private void addDetails(String nameTxt, String lpTxt, String sizeTxt) {
 		float rightAlign = 0.05f;
 		
-		this.name = new Text(nameTxt, 1.0f, 1);
+		this.name = new Text(nameTxt, 1.0f, 1, Fonts.FANCY);
 		UiConstraints titleCons = name.getConstraints();
 		titleCons.setX(new AlignX(XAlign.RIGHT, rightAlign));
-		titleCons.setY(new AlignY(YAlign.TOP, 0.1f));
+		titleCons.setY(new AlignY(YAlign.TOP, 0.0f));
 		this.addComponent(name);
 		
-		this.lastPlayed = new Text(lpTxt, 0.75f, 1);
+		this.lastPlayed = new Text(lpTxt, 0.75f, 1, Fonts.FANCY);
 		UiConstraints lpCons = lastPlayed.getConstraints();
 		lpCons.setX(new AlignX(XAlign.RIGHT, rightAlign));
 		lpCons.setY(new AlignY(YAlign.TOP, 0.66f));
 		this.addComponent(lastPlayed);
 		
-		this.size = new Text(sizeTxt, 0.75f, 1);
+		this.size = new Text(sizeTxt, 0.75f, 1, Fonts.FANCY);
 		UiConstraints sizeCons = this.size.getConstraints();
 		sizeCons.setX(new AlignX(XAlign.RIGHT, rightAlign));
 		sizeCons.setY(new AlignY(YAlign.TOP, 1.15f));
@@ -162,16 +161,17 @@ public class SaveButton extends UiComponent {
 	}
 
 	private void createPanel() {
-		this.setAlpha(MenuSettings.S_TRANSP);
+		this.setAlpha(0); //MenuSettings.S_TRANSP);
 		this.setColor(MenuSettings.S_COLOR);
 		
 		UiConstraints cons = this.getConstraints();
 		cons.setWidth(new RelativeScale(0.8f));
 		cons.setHeight(new AspectRatio(0.25f));
 		cons.setX(new AlignX(XAlign.CENTER));
+		this.setConstraints(cons);
 		
 		this.hovScale = new SmoothFloat(1.0f);
-		this.hovScale.setValue(0.0f);
+		this.hovScale.setValue(1.0f);
 		this.hovScale.setTarget(1.0f);
 	}
 	

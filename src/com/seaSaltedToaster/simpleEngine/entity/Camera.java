@@ -8,6 +8,10 @@ public class Camera {
 	protected float yaw, pitch, roll;
 	
 	public Camera() {
+		resetPosition();
+	}
+	
+	public void resetPosition() {
 		this.position = new Vector3f(0,0,0);
 		this.yaw = 0;
 		this.pitch = 0;

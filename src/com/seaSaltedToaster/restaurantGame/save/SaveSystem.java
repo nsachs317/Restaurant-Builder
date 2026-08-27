@@ -148,6 +148,7 @@ public class SaveSystem {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		this.setWriterFile(employeeFile);
 		
 		//Chefs First
 		for(ChefComponent chef : restaurant.chefs) {

@@ -16,9 +16,11 @@ public class MatrixUtils {
 		transformationMatrix = transformationMatrix.multiply(Matrix4f.rotate((float) Math.toRadians(transform.getRotation().z), 0, 0, 1));
 		transformationMatrix = transformationMatrix.multiply(Matrix4f.scale(transform.getScale().x, transform.getScale().y, transform.getScale().z));
 		return transformationMatrix;
+		
+//		return createTransformationMatrix(transform.getPosition(), transform.getRotation().x, transform.getRotation().y, transform.getRotation().z, transform.getScale());
 	}
 
-	public Matrix4f createTransformationMatrix(Vector3f translation, float rx, float ry, float rz, Vector3f scale) {
+	public static Matrix4f createTransformationMatrix(Vector3f translation, float rx, float ry, float rz, Vector3f scale) {
 		Matrix4f transformationMatrix = new Matrix4f();
 		transformationMatrix.setIdentity();
 		transformationMatrix = transformationMatrix.multiply(Matrix4f.translate(translation.x, translation.y, translation.z));

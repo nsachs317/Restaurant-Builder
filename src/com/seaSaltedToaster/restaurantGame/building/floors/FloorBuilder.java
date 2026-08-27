@@ -93,7 +93,7 @@ public class FloorBuilder {
 		fill();
 	}
 	
-	public void place() {		
+	public void place() {
 		Entity placement = this.meshBuilder.buildFloor(points, floorComp, true, true);
 		if(placement != null)
 			this.resetEndpoints();

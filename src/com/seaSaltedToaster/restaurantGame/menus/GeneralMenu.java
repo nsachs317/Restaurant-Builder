@@ -6,6 +6,7 @@ import com.seaSaltedToaster.MainApp;
 import com.seaSaltedToaster.restaurantGame.menus.buildingSelector.BuildingMenu;
 import com.seaSaltedToaster.restaurantGame.menus.employees.EmployeeMenu;
 import com.seaSaltedToaster.restaurantGame.menus.management.ManagerMenu;
+import com.seaSaltedToaster.restaurantGame.menus.pauseMenu.PauseMenu;
 import com.seaSaltedToaster.simpleEngine.Engine;
 import com.seaSaltedToaster.simpleEngine.input.listeners.KeyEventData;
 import com.seaSaltedToaster.simpleEngine.input.listeners.KeyListener;
@@ -26,6 +27,7 @@ public class GeneralMenu extends UiComponent implements KeyListener {
 	private EmployeeMenu employee;
 	private PaintMenu paint;
 	private DeleteTool delete;
+	private PauseMenu pause;
 	
 	//Objects
 	private int buttonCount = 6;
@@ -98,9 +100,14 @@ public class GeneralMenu extends UiComponent implements KeyListener {
 		}
 		//Settings
 		else if(buttons[5].isHovering()) {
-			buttons[5].setInUse(!buttons[5].isInUse());
-			closeOthers(5);
+			doPauseMenu();
 		}
+	}
+
+	public void doPauseMenu() {
+		pause.show();
+		buttons[5].setInUse(!buttons[5].isInUse());
+		closeOthers(5);
 	}
 
 	@Override
@@ -113,7 +120,7 @@ public class GeneralMenu extends UiComponent implements KeyListener {
 		MainApp.menuFocused = false;
 	}
 	
-	private void closeOthers(int it) {
+	public void closeOthers(int it) {
 		for(int i = 0; i < buttonCount; i++) {
 			if(i != it)
 				buttons[i].setInUse(false);
@@ -133,9 +140,12 @@ public class GeneralMenu extends UiComponent implements KeyListener {
 		if(delete.isDeleting() & it != 4) {
 			delete.show(buttons[4]);
 		}
+		if(pause.isOpen() & it != 5) {
+			pause.show();
+		}
 	}
 	
-	private void closeAll() {
+	public void closeAll() {
 		if(building.isOpen()) {
 			building.show();
 		}
@@ -148,7 +158,9 @@ public class GeneralMenu extends UiComponent implements KeyListener {
 		if(delete.isDeleting()) {
 			delete.show(buttons[4]);
 		}
-		
+		if(pause.isOpen()) {
+			pause.show();
+		}
 	}
 
 	private void addButtons(Engine engine) {
@@ -225,6 +237,14 @@ public class GeneralMenu extends UiComponent implements KeyListener {
 
 	public void setDelete(DeleteTool delete) {
 		this.delete = delete;
+	}
+
+	public PauseMenu getPause() {
+		return pause;
+	}
+
+	public void setPause(PauseMenu pause) {
+		this.pause = pause;
 	}
 
 }

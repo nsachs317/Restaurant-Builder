@@ -66,13 +66,18 @@ public class FloorMeshBuilder {
 			return null;
 		}
 		
+		Building building = BuildingList.getBuilding(comp.getType());
+
+		int cost = (tileCount * building.getPrice());
+		if(cost > MainApp.restaurant.money && checkRequirements) {
+			add = false;
+		}
+		
 		BuildLayer layer = MainApp.restaurant.layers.get(BuildingManager.curLayer);
 		
 		FloorComponent newComp = new FloorComponent(comp.getType(), comp.getGenerator(), points);
 		result.addComponent(newComp);
-		
-		Building building = BuildingList.getBuilding(comp.getType());
-		
+				
 		if(add && checkRequirements)
 			MainApp.restaurant.money -= (tileCount * building.getPrice());
 		

@@ -20,7 +20,10 @@ public abstract class Scene {
 	protected int levels = 10;
 	protected List<UiComponent> components;
 	
-	public Scene() {
+	protected ResourceManager resourceManager;
+	
+	public Scene(ResourceManager manager) {
+		this.resourceManager = manager;
 		clearScene();
 	}
 	

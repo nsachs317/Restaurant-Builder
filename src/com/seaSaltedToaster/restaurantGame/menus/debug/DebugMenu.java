@@ -2,6 +2,8 @@ package com.seaSaltedToaster.restaurantGame.menus.debug;
 
 import org.lwjgl.glfw.GLFW;
 
+import com.seaSaltedToaster.MainApp;
+import com.seaSaltedToaster.scenes.Menu;
 import com.seaSaltedToaster.simpleEngine.Engine;
 import com.seaSaltedToaster.simpleEngine.input.listeners.KeyEventData;
 import com.seaSaltedToaster.simpleEngine.input.listeners.KeyListener;

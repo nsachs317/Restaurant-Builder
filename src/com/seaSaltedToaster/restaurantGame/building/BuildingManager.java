@@ -84,14 +84,14 @@ public class BuildingManager implements KeyListener, MouseListener {
 		layers.get(curLayer).show();
 	}
 
-	public void place(Vector3f position) {
+	public void place(Vector3f position) {		
 		BuildLayer layer = layers.get(curLayer);
 		switch(Raycaster.mode) {
 		case DEFAULT:
 			this.objectBuilder.placeAt(layer);
 			break;
 		case WALL:
-			this.wallBuilder.click(position);
+			//this.wallBuilder.click(position);
 			break;
 		case WALL_CLASSIC :
 			this.objectBuilder.placeAt(layer);

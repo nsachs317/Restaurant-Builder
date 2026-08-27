@@ -37,13 +37,8 @@ import com.seaSaltedToaster.restaurantGame.building.BuildingType;
 import com.seaSaltedToaster.restaurantGame.building.categories.BuildingList;
 import com.seaSaltedToaster.restaurantGame.building.layers.BuildLayer;
 import com.seaSaltedToaster.restaurantGame.objects.FloorComponent;
-import com.seaSaltedToaster.restaurantGame.objects.Restaurant;
 import com.seaSaltedToaster.restaurantGame.objects.WallComponent;
-import com.seaSaltedToaster.restaurantGame.objects.food.Food;
-import com.seaSaltedToaster.restaurantGame.objects.food.FoodRegistry;
-import com.seaSaltedToaster.restaurantGame.objects.food.ItemOrder;
 import com.seaSaltedToaster.restaurantGame.objects.people.Employee;
-import com.seaSaltedToaster.restaurantGame.objects.seating.SeatComponent;
 import com.seaSaltedToaster.restaurantGame.objects.seating.TableComponent;
 import com.seaSaltedToaster.simpleEngine.Engine;
 import com.seaSaltedToaster.simpleEngine.entity.Entity;
@@ -120,6 +115,9 @@ public class LoadSystem {
 		
 		//Get data
 		String allData = readFile(employeeFile);
+		if(allData.equalsIgnoreCase("")) {
+			return;
+		}
 		String[] allLines = allData.replaceAll("\n", "").split(";");
 		
 		for(String line : allLines) {
