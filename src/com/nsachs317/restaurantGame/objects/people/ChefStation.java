@@ -1,0 +1,130 @@
+package com.nsachs317.restaurantGame.objects.people;
+
+import java.util.List;
+
+import com.nsachs317.MainApp;
+import com.nsachs317.restaurantGame.building.layers.BuildLayer;
+import com.nsachs317.restaurantGame.building.objects.BuildingRenderer;
+import com.nsachs317.restaurantGame.objects.food.ItemOrder;
+import com.nsachs317.simpleEngine.entity.Entity;
+import com.nsachs317.simpleEngine.entity.componentArchitecture.Component;
+import com.nsachs317.simpleEngine.entity.componentArchitecture.ModelComponent;
+import com.nsachs317.simpleEngine.utilities.Vector3f;
+
+public class ChefStation extends Component {
+
+	//Chef data
+	private boolean isOccupied = false;
+	private Entity owner;
+	
+	//Cook data
+	private int spotCount = 5;
+	private Entity[] foodDisplays;
+	private Vector3f[] spots;
+	
+	public ChefStation() {
+		this.spots = new Vector3f[spotCount];
+		this.foodDisplays = new Entity[spotCount];
+	}
+	
+	@Override
+	public void init() {
+		float shelfHeight = 0.7f;
+		float plateDist = 0.2f;
+		float plateDistFromChef = 0.f;
+		this.spots[0] = new Vector3f(plateDistFromChef, shelfHeight, 0);
+		this.spots[1] = new Vector3f(plateDistFromChef, shelfHeight, -plateDist);
+		this.spots[2] = new Vector3f(plateDistFromChef, shelfHeight, plateDist);
+		this.spots[3] = new Vector3f(plateDistFromChef, shelfHeight, -plateDist*2);
+		this.spots[4] = new Vector3f(plateDistFromChef, shelfHeight, plateDist*2);
+		
+		for(int i = 0; i < spotCount; i++) {
+			Entity entity = new Entity();
+			entity.addComponent(new ModelComponent(null));
+			
+			Vector3f chefPos = this.entity.getTransform().getPosition().copy();
+			Vector3f spotPos = spots[i];
+			
+			Vector3f newSpot = new Vector3f(spotPos);
+			float times = (this.entity.getTransform().getRotation().y / 90.0f);
+			for(int x = 0; x < times; x++) {
+				Vector3f result = new Vector3f(spotPos);
+				result.x = newSpot.z;
+				result.z = -newSpot.x;
+				newSpot = result;
+			}
+			
+			Vector3f combinedPos = chefPos.add(newSpot);
+			entity.getTransform().setPosition(combinedPos);
+			this.foodDisplays[i] = entity;
+		}
+		
+		BuildLayer layer = MainApp.restaurant.layers.get(0);
+		BuildingRenderer render = layer.getManager().getRenderer();
+		for(Entity food : foodDisplays) {
+			render.getFoods().add(food);
+		}
+	}
+
+	@Override
+	public void update() {
+		//if(!isOccupied) return;
+		
+		List<ItemOrder> orders = MainApp.restaurant.chefOrders;
+		int index = -1;
+		for(Entity display : foodDisplays) {
+			ModelComponent comp = (ModelComponent) display.getComponent("Model");
+			comp.setMesh(null);
+		}
+		for(ItemOrder order : orders) {
+			if(order == null)
+				continue;
+			//if(order.getChefWhoCooked() != owner) continue;
+			index++;
+			if(index < spotCount) {
+				ModelComponent comp = (ModelComponent) foodDisplays[index].getComponent("Model");
+				if(order.isCooked() && !order.isDelivered() && order.getFoodItem() != null) {
+					comp.setMesh(order.getFoodItem()[0].getVao());
+				}
+				else
+					comp.setMesh(null);
+			}
+		}
+	}
+
+	public boolean isOccupied() {
+		return isOccupied;
+	}
+
+	public void setOccupied(boolean isOccupied) {
+		this.isOccupied = isOccupied;
+	}
+	
+	public Entity getOwner() {
+		return owner;
+	}
+
+	public void setOwner(Entity owner) {
+		this.owner = owner;
+	}
+
+	@Override
+	public void reset() {
+
+	}
+
+	@Override
+	public String getComponentType() {
+		return "ChefStation";
+	}
+
+	@Override
+	public boolean changesRenderer() {
+		return false;
+	}
+
+	@Override
+	public Component copyInstance() {
+		return new ChefStation();
+	}
+}

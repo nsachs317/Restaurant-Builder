@@ -1,0 +1,112 @@
+package com.nsachs317.restaurantGame.building.walls;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import com.nsachs317.MainApp;
+import com.nsachs317.restaurantGame.building.BuildingManager;
+import com.nsachs317.restaurantGame.building.categories.BuildingList;
+import com.nsachs317.restaurantGame.building.layers.BuildLayer;
+import com.nsachs317.restaurantGame.objects.WallComponent;
+import com.nsachs317.simpleEngine.Engine;
+import com.nsachs317.simpleEngine.entity.Entity;
+import com.nsachs317.simpleEngine.entity.componentArchitecture.ModelComponent;
+import com.nsachs317.simpleEngine.models.Vao;
+import com.nsachs317.simpleEngine.utilities.MathUtils;
+import com.nsachs317.simpleEngine.utilities.Vector3f;
+
+public class StandardWallGenerator extends WallGenerator {
+
+	@Override
+	public Entity createWall(Vector3f startPoint, Vector3f endPoint, WallComponent wallType, boolean addToBatch) {
+		List<Vector3f> vertices = new ArrayList<Vector3f>();
+		
+		Vector3f direction = startPoint.copy().subtract(endPoint.copy());
+		direction.normalize();
+		
+		float projAngle = (float) Math.toDegrees(Vector3f.angle(direction, new Vector3f(0,0,-1)));
+		if(projAngle >= 180)
+			projAngle -= 180;
+		projAngle = Math.abs(projAngle);
+		
+		Vector3f v1 = new Vector3f(0.0f);
+		vertices.add(v1);
+		Vector3f v3 = new Vector3f(endPoint.x - startPoint.x, 0, endPoint.z - startPoint.z);
+		v3 = MathUtils.rotatePointAtCenter(v3, -projAngle);
+		vertices.add(v3);
+		
+		List<Integer> triangles = new ArrayList<Integer>();
+		
+		float wallWidth = 0.125f;
+		addSideWall(wallWidth, 1.0f, direction, v1.copy(), vertices, triangles);
+		addSideWall(wallWidth, 1.0f, direction, v3.copy(), vertices, triangles);
+		
+		//Wall tri 1 and 2
+		triangles.add(2);
+		triangles.add(3);
+		triangles.add(6);
+		
+		triangles.add(3);
+		triangles.add(7);
+		triangles.add(6);
+		
+		//Wall tri 3 and 4
+		triangles.add(4);
+		triangles.add(5);
+		triangles.add(8);
+		
+		triangles.add(4);
+		triangles.add(11);
+		triangles.add(8);
+		
+		triangles.add(5);
+		triangles.add(9);
+		triangles.add(8);
+		
+		//Roof tri 1 and 2
+		triangles.add(3);
+		triangles.add(5);
+		triangles.add(7);
+		
+		triangles.add(5);
+		triangles.add(9);
+		triangles.add(7);
+		
+		int[] indices = MathUtils.getTriangles(triangles);
+		float[] vertexFloats = MathUtils.getVectorList(vertices);
+		
+		float[] colors = new float[128];
+		for(int i = 0; i < 64; i+=3) {
+			colors[i] = 2.0f;
+			colors[i+1] = 0.0f;
+			colors[i+2] = 0.15f;
+		}
+		
+		Engine engine = MainApp.restaurant.engine;
+		Vao vao = engine.getLoader().loadToVAO(vertexFloats, colors, vertexFloats, indices);
+				
+		Entity wall = new Entity();
+		wall.getTransform().getRotation().setY(-projAngle);
+		wall.setPosition(startPoint);
+		wall.addComponent(new ModelComponent(vao));
+		
+		WallComponent wallComp = (WallComponent) wallType.copyInstance();
+		wallComp.setStart(startPoint);
+		wallComp.setEnd(endPoint);
+		wallComp.setProjAngle(projAngle);
+		wall.addComponent(wallComp);
+		
+		if(addToBatch) {
+			BuildLayer layer = MainApp.restaurant.layers.get(BuildingManager.curLayer);
+			layer.addBuilding(wall, BuildingList.getBuilding(wallType.getWallType()), -127, true);	
+		}
+		
+		return wall;
+	}
+
+	@Override
+	public String getType() {
+		return "Standard";
+	}
+
+}

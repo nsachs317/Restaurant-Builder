@@ -1,0 +1,146 @@
+package com.nsachs317.restaurantGame.ai.person.customer;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import com.nsachs317.MainApp;
+import com.nsachs317.restaurantGame.ai.person.Action;
+import com.nsachs317.restaurantGame.ai.person.ActionComponent;
+import com.nsachs317.restaurantGame.building.BuildingId;
+import com.nsachs317.restaurantGame.building.layers.BuildLayer;
+import com.nsachs317.restaurantGame.objects.seating.SeatComponent;
+import com.nsachs317.restaurantGame.save.SaveSystem;
+import com.nsachs317.simpleEngine.entity.Entity;
+import com.nsachs317.simpleEngine.entity.componentArchitecture.Component;
+
+public class LoadSeating extends Action {
+	
+	private HashMap<Entity, SeatComponent> seating;
+
+	public LoadSeating(HashMap<Entity, SeatComponent> seating) {
+		this.seating = seating;
+	}
+
+	@Override
+	public void start() {
+		
+	}
+
+	@Override
+	public void update() {
+		
+	}
+
+	@Override
+	public boolean isDone() {
+		return true;
+	}
+
+	@Override
+	public String type() {
+		return "LoadSeating";
+	}
+
+	@Override
+	public void saveAction(SaveSystem system) {
+		//SAVE ACTION GoTo
+		BuildingId id = (BuildingId) super.object.getComponent("BuildingId");
+		int index = id.getId();
+		
+		String data = "SEATING_DATA[";
+		for(Map.Entry<Entity, SeatComponent> entry : seating.entrySet()) {
+			Entity person = entry.getKey();
+			SeatComponent tableCmp = entry.getValue();
+			Entity table = tableCmp.entity;
+			
+			BuildingId partyMember = (BuildingId) person.getComponent("BuildingId");
+			BuildingId tableId = (BuildingId) table.getComponent("BuildingId");
+
+			data += (partyMember.getId() + "&" + tableId.getId() + "=");
+		}
+		data += "]";
+		system.saveAction(index, super.actionIndex, type(), data);
+	}
+
+	@Override
+	public void loadAction(String data) {
+		String line = data.replace("[", "").replace("]", "").replace("SEATING_DATA", "").replace(";", "");
+		String[] lines = line.split("=");
+		
+		PartyLeader leader = (PartyLeader) object.getComponent("PartyLeader");
+		
+		if(line.equalsIgnoreCase("")) {
+			leader.getEntity().addComponent(new PartySeating());
+			return;
+		}
+		
+		HashMap<Entity, SeatComponent> seating = new HashMap<Entity, SeatComponent>();
+		
+		int memberNum = 0;
+		for(String member : lines) {
+			if(lines.length <= 0) break;
+			
+			//Break down
+			String[] parts = member.split("&");
+			int person = Integer.parseInt(parts[0]);
+			int seat = Integer.parseInt(parts[1]);
+			
+			Entity personE = null;
+			Entity seatE = null;
+
+			for(BuildLayer layer : MainApp.restaurant.layers) {
+				for(Entity entity : layer.getBuildings()) {
+					
+					BuildingId id = (BuildingId) entity.getComponent("BuildingId");
+					if(id.getId() == person) {
+						personE = entity;
+					}
+					if(id.getId() == seat) {
+						seatE = entity;
+					}
+				}
+			}
+			
+			if(seatE == null || personE == null) continue;
+			
+			SeatComponent comp = (SeatComponent) seatE.getComponent("Chair");
+			
+			if(seatE.getId() == leader.getTable().getEntity().getId()) {
+				int seatNum = 0;
+				for(Component component : seatE.getComponents()) {
+					if(component.getComponentType() == "Chair") {
+						if(seatNum == memberNum)
+							comp = (SeatComponent) component;
+						seatNum++;
+					}
+				}
+			}
+			
+			comp.setTaken(true);
+			comp.setTable(leader.getTable());
+			leader.getTable().getChairs().add(comp);
+			
+			
+			
+			System.out.println("Seat for : " + member);
+			comp.getTable().setTaken(true);
+			if(personE != leader.getEntity())
+				leader.getPartyMembers().add(personE);
+			comp.getTable().setTablePartyLeader(leader.getEntity());
+			
+			personE.setPosition(comp.seatPosition);
+			seating.put(personE, comp);
+			
+			ActionComponent personEC = (ActionComponent) personE.getComponent("Action");
+			personEC.getActions().clear(); //TODO just dont do the tree?
+			personEC.getActions().add(new IdleStay()); //TODO only have one?
+			
+			memberNum++;
+		}
+		
+		PartySeating seatingComponent = new PartySeating();
+		seatingComponent.setSeating(seating);
+		leader.getEntity().addComponent(seatingComponent);
+	}
+
+}

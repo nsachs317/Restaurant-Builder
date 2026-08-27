@@ -1,0 +1,87 @@
+package com.nsachs317.restaurantGame.ai.person.waiter;
+
+import com.nsachs317.MainApp;
+import com.nsachs317.restaurantGame.ai.person.Action;
+import com.nsachs317.restaurantGame.ai.person.ActionComponent;
+import com.nsachs317.restaurantGame.building.BuildingId;
+import com.nsachs317.restaurantGame.objects.Restaurant;
+import com.nsachs317.restaurantGame.objects.food.ItemOrder;
+import com.nsachs317.restaurantGame.objects.people.ServerComponent;
+import com.nsachs317.restaurantGame.save.SaveSystem;
+
+public class WaitForOrder extends Action {
+
+	@Override
+	public void start() {
+		
+	}
+
+	@Override
+	public void update() {
+		
+	}
+
+	@Override
+	public boolean isDone() {
+		ServerComponent c = (ServerComponent) object.getComponent("Server");
+		c.setStatus("Waiting for Orders");
+		
+		ActionComponent aComp = (ActionComponent) object.getComponent("Action");
+		if(aComp.getActions().size() > 1)
+		{
+			return true;
+		}
+		
+		Restaurant restaurant = MainApp.restaurant;
+		
+		for(ItemOrder order : restaurant.orders) {
+			if(order == null) continue;
+
+			//Chef orders
+			boolean canDeliver = (!order.isDelivered() && order.isCooked());
+			if(canDeliver) {
+				ServerComponent comp = (ServerComponent) object.getComponent("Server");
+				comp.deliverOrder(order);
+				order.setDelivered(true);
+				return true;
+			}
+			
+			//Table orders
+			boolean isValid = canTake(order);
+			if(isValid) {
+				System.out.println("Taking order : " + order.getId());
+				ServerComponent comp = (ServerComponent) object.getComponent("Server");
+				comp.takeOrder(order); 
+				order.setTaken(true);
+				return true;
+			}
+		}
+		
+//		aComp.getActions().add(0, new FindHostStation());
+		return false;
+	}
+
+	private boolean canTake(ItemOrder order) {
+		return (order != null && !order.isTaken() && order.getTable() != null);
+	}
+
+	@Override
+	public String type() {
+		return "WaitForOrder";
+	}
+
+	@Override
+	public void saveAction(SaveSystem system) {
+		BuildingId id = (BuildingId) object.getComponent("BuildingId");
+		int index = id.getId();
+
+		system.saveAction(index, super.actionIndex, type(), "WAIT_FOR_ORDER[]");
+	}
+
+	@Override
+	public void loadAction(String data) {
+		ActionComponent comp = (ActionComponent) object.getComponent("Action");
+		comp.getActions().clear();
+	}
+
+}

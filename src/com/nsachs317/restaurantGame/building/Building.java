@@ -1,0 +1,166 @@
+package com.nsachs317.restaurantGame.building;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import com.nsachs317.restaurantGame.building.categories.BuildingCategory;
+import com.nsachs317.restaurantGame.objects.WallComponent;
+import com.nsachs317.simpleEngine.entity.Entity;
+import com.nsachs317.simpleEngine.entity.componentArchitecture.Component;
+import com.nsachs317.simpleEngine.models.Vao;
+import com.nsachs317.simpleEngine.utilities.Vector3f;
+
+public class Building {
+	
+	//Objects
+	private Entity entity;
+	private List<Component> buildingComponents;
+	
+	//Category
+	private BuildingCategory category;
+	public BuildingType type;
+	
+	//Colors (default)
+	private Vector3f defPrimary, defSecondary;
+	
+	//Settings
+	public boolean isWall = false, isFloor = false, isObstructive = false, isTable = false, walkThrough = false, show = true;
+	private float iconZoom = 1f;
+	private int price = 0;
+	public String name, modelPath;
+	public Vao model;
+
+	public Building(Entity entity, boolean isWall, boolean isFloor, BuildingType type) {
+		this.entity = entity;
+		this.buildingComponents = new ArrayList<Component>();
+		this.isWall = isWall;
+		this.isFloor = isFloor;
+		this.type = type;
+		this.defPrimary = new Vector3f();
+		this.defSecondary = new Vector3f();
+	}
+
+	public Building(Entity entity) {
+		this.entity = entity;
+		this.buildingComponents = new ArrayList<Component>();
+		this.isWall = false;
+		this.isFloor = false;
+		this.defPrimary = new Vector3f();
+		this.defSecondary = new Vector3f();
+	}
+	
+	
+	public Component getComponent(String comp) {
+		for(Component component : buildingComponents) {
+			if(component.getComponentType() == comp)  {
+				return component;
+			}
+		}
+		return null;
+	}
+
+	public BuildingType getType() {
+		return type;
+	}
+
+	public void setType(BuildingType type) {
+		this.type = type;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public Vector3f getDefPrimary() {
+		return defPrimary;
+	}
+
+	public void setDefPrimary(Vector3f defPrimary) {
+		this.defPrimary = defPrimary;
+	}
+
+	public Vector3f getDefSecondary() {
+		return defSecondary;
+	}
+
+	public void setDefSecondary(Vector3f defSecondary) {
+		this.defSecondary = defSecondary;
+	}
+
+	public Entity getEntity() {
+		return entity;
+	}
+
+	public List<Component> getBuildingComponents() {
+		return buildingComponents;
+	}
+
+	public BuildingCategory getCategory() {
+		return category;
+	}
+
+	public void setCategory(BuildingCategory category) {
+		this.category = category;
+	}
+
+	public int getPrice() {
+		return price;
+	}
+
+	public void setPrice(int price) {
+		this.price = price;
+	}
+
+	public boolean isWall() {
+		return isWall;
+	}
+
+	public void setWall(boolean isWall) {
+		this.isWall = isWall;
+	}
+
+	public boolean isFloor() {
+		return isFloor;
+	}
+
+	public void setFloor(boolean isFloor) {
+		this.isFloor = isFloor;
+	}
+
+	public boolean isObstructive() {
+		return isObstructive;
+	}
+
+	public void setObstructive(boolean isObstructive) {
+		this.isObstructive = isObstructive;
+	}
+
+	public boolean isTable() {
+		return isTable;
+	}
+
+	public void setIsTable(boolean isTable) {
+		this.isTable = isTable;
+	}
+
+	public float getIconZoom() {
+		return iconZoom;
+	}
+
+	public void setIconZoom(float iconZoom) {
+		this.iconZoom = iconZoom;
+	}
+
+	public boolean isWalkThrough() {
+		return walkThrough;
+	}
+
+	public void setWalkThrough(boolean walkThrough) {
+		this.walkThrough = walkThrough;
+	}
+
+}
