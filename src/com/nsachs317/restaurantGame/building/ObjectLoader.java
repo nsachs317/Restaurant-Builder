@@ -88,7 +88,7 @@ public class ObjectLoader {
 	private List<String>  openModelFile(String file) {
 		//Open file
 		System.out.println("Reading building file : " + file);
-		isr = new InputStreamReader(ObjLoader.class.getResourceAsStream("/buildings/" + file + ".rtbuilding"));
+		isr = new InputStreamReader(ObjLoader.class.getResourceAsStream("/resources/buildings/" + file + ".rtbuilding"));
 		bufferedReader = new BufferedReader(isr);
 		
 		//Create array of lines in file

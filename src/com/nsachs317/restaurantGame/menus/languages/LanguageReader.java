@@ -23,7 +23,7 @@ public class LanguageReader {
 		
 		//Read data from all files
 		for(String file : files) {
-			Language language = loadLanguageFile(LANGUAGE_FOLDER + file + ".txt");
+			Language language = loadLanguageFile("/resources/" + LANGUAGE_FOLDER + file + ".txt");
 			languages.add(language);
 		}
 		

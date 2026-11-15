@@ -2,6 +2,7 @@ package com.nsachs317.simpleEngine.models.wavefront;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
@@ -207,13 +208,15 @@ public class ObjLoader {
 	private List<String>  openModelFile(String file) {
 		//Open file
 		System.out.println("Loading OBJ model : " + file);
-		isr = new InputStreamReader(ObjLoader.class.getResourceAsStream("/" + file + ".obj"));
-		bufferedReader = new BufferedReader(isr);
 		
 		//Create array of lines in file
 		List<String> objFile = new ArrayList<String>();
 		
 		try {
+			InputStream in = ObjLoader.class.getResourceAsStream("/resources/" + file + ".obj");
+			isr = new InputStreamReader(in);
+			bufferedReader = new BufferedReader(isr); 
+			
 			String line;
 		    while ((line = bufferedReader.readLine()) != null) {
 		    	objFile.add(line);

@@ -26,7 +26,7 @@ public class TextureLoader {
 	}
 	
 	public int loadTexture(String fileName) {
-		Texture tex = getTextureData(fileName+".png", true);
+		Texture tex = getTextureData("/resources" + fileName+".png", true);
 		GL30.glGenerateMipmap(GL11.GL_TEXTURE_2D);
 		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR_MIPMAP_LINEAR);
 		GL11.glTexParameterf(GL11.GL_TEXTURE_2D, GL14.GL_TEXTURE_LOD_BIAS, 0.0f);
@@ -36,7 +36,7 @@ public class TextureLoader {
 	}
 	
 	public int loadTexture(String fileName, boolean stream) {
-		Texture tex = getTextureData(fileName+".png", stream);
+		Texture tex = getTextureData("/resources" + fileName+".png", stream);
 		GL30.glGenerateMipmap(GL11.GL_TEXTURE_2D);
 		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR_MIPMAP_LINEAR);
 		GL11.glTexParameterf(GL11.GL_TEXTURE_2D, GL14.GL_TEXTURE_LOD_BIAS, 0.0f);
@@ -46,7 +46,7 @@ public class TextureLoader {
 	}
 	
 	public int loadTexture(String fileName, float bias) {
-		Texture tex = getTextureData(fileName+".png", true);
+		Texture tex = getTextureData("/resources" + fileName+".png", true);
 		GL30.glGenerateMipmap(GL11.GL_TEXTURE_2D);
 		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR_MIPMAP_LINEAR);
 		GL11.glTexParameterf(GL11.GL_TEXTURE_2D, GL14.GL_TEXTURE_LOD_BIAS, bias);
@@ -122,6 +122,16 @@ public class TextureLoader {
 
 	public List<Integer> getTextureCache() {
 		return textureCache;
+	}
+
+	public int loadTextureOutside(String fileName, boolean stream) {
+		Texture tex = getTextureData(fileName+".png", stream);
+		GL30.glGenerateMipmap(GL11.GL_TEXTURE_2D);
+		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR_MIPMAP_LINEAR);
+		GL11.glTexParameterf(GL11.GL_TEXTURE_2D, GL14.GL_TEXTURE_LOD_BIAS, 0.0f);
+		int textureID = tex.getID();
+		textureCache.add(textureID);
+		return textureID;
 	}
 
 }

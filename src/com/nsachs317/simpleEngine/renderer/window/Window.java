@@ -21,7 +21,7 @@ public class Window {
 	private static double lastFrameTime;
 	
 	public static double width, height;
-	public static boolean fullscreen = true;
+	public static boolean fullscreen = false;
 	
 	public void createWindow(int width, int height, String title) {
 		boolean initState = GLFW.glfwInit();

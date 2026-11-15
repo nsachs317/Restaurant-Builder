@@ -77,7 +77,7 @@ public class LoadSystem {
 		File iconFile = new File(file.getAbsolutePath() + "/" + save + "/icon.png");
 		if(iconFile.exists()) {
 			File iconFileGo = new File(file.getAbsolutePath() + "/" + save + "/icon");
-			return engine.getTextureLoader().loadTexture(iconFileGo.getAbsolutePath(), false);
+			return engine.getTextureLoader().loadTextureOutside(iconFileGo.getAbsolutePath(), false);
 		}
 		return -1;
 	}

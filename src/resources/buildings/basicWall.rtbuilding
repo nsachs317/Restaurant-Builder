@@ -1,0 +1,11 @@
+name=Basic Wall
+type=Edge
+price=25
+iconZoom=0.66
+category=Building
+model=basic/basicWall
+primary=0.78,0.72,0.43
+secondary=0,0,0
+components{
+
+}

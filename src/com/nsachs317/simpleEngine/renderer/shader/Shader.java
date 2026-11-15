@@ -74,7 +74,7 @@ public class Shader {
 		StringBuilder shaderSource = new StringBuilder();
 		
 		try{
-			InputStream in = Shader.class.getResourceAsStream(file);
+			InputStream in = Shader.class.getResourceAsStream("/resources" + file);
 			InputStreamReader isr = new InputStreamReader(in);
 			BufferedReader reader = new BufferedReader(isr);
 			String line;

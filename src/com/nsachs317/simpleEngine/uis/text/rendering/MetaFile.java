@@ -97,7 +97,7 @@ public class MetaFile {
 
     private void openFile(String file) {
         try {
-        	InputStreamReader isr = new InputStreamReader(MetaFile.class.getResourceAsStream(file + ".fnt"));
+        	InputStreamReader isr = new InputStreamReader(MetaFile.class.getResourceAsStream("/resources/" + file + ".fnt"));
             reader = new BufferedReader(isr);
         } catch (Exception e) {
             e.printStackTrace();

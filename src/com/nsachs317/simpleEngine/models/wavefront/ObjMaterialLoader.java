@@ -9,15 +9,15 @@ import com.nsachs317.simpleEngine.utilities.Vector3f;
 
 public class ObjMaterialLoader {
 	
-	public List<ObjMaterial> loadMaterial(String file) {
-		InputStreamReader isr = new InputStreamReader(ObjMaterialLoader.class.getResourceAsStream("/" + file + ".mtl"));
-		BufferedReader br = new BufferedReader(isr);
-		String line;
-		
+	public List<ObjMaterial> loadMaterial(String file) {		
 		List<ObjMaterial> materials = new ArrayList<ObjMaterial>(16);
 		ObjMaterial currentMaterial = null;
 		
 		try {
+			InputStreamReader isr = new InputStreamReader(ObjMaterialLoader.class.getResourceAsStream("/resources/" + file + ".mtl"));
+			BufferedReader br = new BufferedReader(isr);
+			String line;
+			
 			while (true) {
 				line = br.readLine();
 				if(line == null) {
